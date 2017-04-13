@@ -3,6 +3,9 @@ package org.jmade;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.jmade.core.message.MessageConsumer;
+import org.jmade.core.message.MessageProducer;
+import org.jmade.core.message.TopicManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -31,13 +34,14 @@ public class TestProducerConsumerManualCreation {
     private static final Logger logger = LoggerFactory.getLogger(TestProducerConsumerManualCreation.class);
 
     private static final String topic1 = "broadcast";
-    private static final String topic2 = "broadcast2";
+    private static final String topic2 = "broadcast3";
     private static final String group = "group";
 
     final CountDownLatch latch = new CountDownLatch(4);
 
     @Test
     public void test() throws Exception {
+        new TopicManager().createTopic(topic2);
         KafkaMessageListenerContainer<Integer, String> container = initContainer(topic1);
         KafkaMessageListenerContainer<Integer, String> container1 = initContainer(topic2);
         Thread.sleep(1000); // wait a bit for the container to start
@@ -54,6 +58,32 @@ public class TestProducerConsumerManualCreation {
         logger.info("Stop auto");
 
 
+    }
+
+
+    @Test
+    public void shortTest() throws InterruptedException {
+        String topic1 = "top1";
+        String topic2 = "top2";
+        TopicManager topicManager = new TopicManager();
+        topicManager.createTopic(topic1);
+        topicManager.createTopic(topic2);
+
+        MessageConsumer messageConsumer = new MessageConsumer(topic1);
+        MessageConsumer messageConsumer1 = new MessageConsumer(topic2);
+        Thread.sleep(5000);
+
+        MessageProducer messageProducer = new MessageProducer(topic1);
+        MessageProducer messageProducer1 = new MessageProducer(topic2);
+        messageProducer.send("foo");
+        messageProducer1.send("bar");
+        messageProducer1.send("baz");
+        messageProducer.send("qux");
+
+        topicManager.deleteTopic(topic1);
+        topicManager.deleteTopic(topic2);
+        messageConsumer.stop();
+        messageConsumer1.stop();
     }
 
     private KafkaMessageListenerContainer initContainer(String topic1){
@@ -76,6 +106,7 @@ public class TestProducerConsumerManualCreation {
 
         };
     }
+
     private KafkaMessageListenerContainer<Integer, String> createContainer(String topic1) {
         Map<String, Object> props = consumerProps();
         DefaultKafkaConsumerFactory<Integer, String> cf =
