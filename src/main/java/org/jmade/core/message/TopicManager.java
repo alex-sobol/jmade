@@ -24,12 +24,16 @@ public class TopicManager {
 
     public void createTopic(String name) {
         Properties topicConfig = new Properties();
-        if (!AdminUtils.topicExists(zkUtils, name)) {
+        if (!isTopicExists(name)) {
             AdminUtils.createTopic(zkUtils, name, 1, 1, topicConfig, RackAwareMode.Disabled$.MODULE$);
         }
     }
 
     public void deleteTopic(String name) {
         AdminUtils.deleteTopic(zkUtils, name);
+    }
+
+    public boolean isTopicExists(String name){
+        return AdminUtils.topicExists(zkUtils, name);
     }
 }

@@ -3,6 +3,7 @@ package org.jmade;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.jmade.core.Agent;
 import org.jmade.core.message.MessageConsumer;
 import org.jmade.core.message.MessageProducer;
 import org.jmade.core.message.TopicManager;
@@ -20,6 +21,7 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.listener.config.ContainerProperties;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -61,7 +63,7 @@ public class TestProducerConsumerManualCreation {
     }
 
 
-    @Test
+    /*@Test
     public void shortTest() throws InterruptedException {
         String topic1 = "top1";
         String topic2 = "top2";
@@ -84,6 +86,27 @@ public class TestProducerConsumerManualCreation {
         topicManager.deleteTopic(topic2);
         messageConsumer.stop();
         messageConsumer1.stop();
+    }*/
+
+    @Test
+    public void agentTest() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(4);
+        String topic1 = "top1";
+        String topic2 = "top2";
+        Agent agent1 = new Agent(topic1);
+        Agent agent2 = new Agent(topic2);
+        agent1.onStart();
+        agent2.onStart();
+        Thread.sleep(5000);
+        agent1.dummySend(agent2.getId(), Arrays.asList("foo", "qux"));
+        agent2.dummySend(agent1.getId(), Arrays.asList("bar", "baz"));
+
+        while (latch.getCount()>0){
+            latch.countDown();
+            Thread.sleep(5000);
+        }
+        agent1.onStop();
+        agent2.onStop();
     }
 
     private KafkaMessageListenerContainer initContainer(String topic1){

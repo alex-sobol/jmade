@@ -21,6 +21,8 @@ public class Producer extends KafkaProducer<String, String> {
         System.out.println("Sending message: " + topicName);
         final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topicName, "sent", "" + message + System.currentTimeMillis());
         send(producerRecord);
-        System.err.println("Message sent: " + topicName);
+        System.err.println("ACLMessage sent: " + topicName);
     }
+
+
 }

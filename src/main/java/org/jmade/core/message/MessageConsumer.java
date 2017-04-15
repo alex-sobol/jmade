@@ -17,17 +17,23 @@ public class MessageConsumer implements Stoppable{
     private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
 
     private static final String GROUP = "group";
+    private String topic;
 
     private KafkaMessageListenerContainer<Integer, String> container;
+    private HighLevelMessageConsumer messageConsumer;
 
-    public MessageConsumer(String topic) {
+    TopicManager topicManager = new TopicManager();
+
+    public MessageConsumer(String topic, HighLevelMessageConsumer listener) {
+        this.topic = topic;
+        messageConsumer = listener;
         initContainer(topic);
     }
 
     private KafkaMessageListenerContainer initContainer(String topic1) {
+        topicManager.createTopic(topic1);
         container = createContainer(topic1);
         container.setupMessageListener(getListener());
-        //container.setBeanName("testAuto");
         container.start();
 
         return container;
@@ -39,10 +45,12 @@ public class MessageConsumer implements Stoppable{
             @Override
             public void onMessage(ConsumerRecord<Integer, String> message) {
                 logger.info(message.topic() + " received: " + message.value());
+                messageConsumer.onMessageReceived(message.value());
             }
 
         };
     }
+
 
     private KafkaMessageListenerContainer<Integer, String> createContainer(String topic1) {
         Map<String, Object> props = consumerProps();
@@ -71,5 +79,6 @@ public class MessageConsumer implements Stoppable{
     @Override
     public void stop() {
         container.stop();
+        topicManager.deleteTopic(topic);
     }
 }

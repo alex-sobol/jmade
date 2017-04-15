@@ -23,6 +23,10 @@ public class MessageProducer {
         template.sendDefault(message);
     }
 
+    public void send(String topic, String message){
+        template.send(topic, message);
+    }
+
     private KafkaTemplate<Integer, String> createTemplate(String topic) {
         Map<String, Object> senderProps = senderProps();
         ProducerFactory<Integer, String> pf =
