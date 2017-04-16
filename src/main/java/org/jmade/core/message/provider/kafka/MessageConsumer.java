@@ -1,8 +1,7 @@
-package org.jmade.core.message;
+package org.jmade.core.message.provider.kafka;
 
-import com.yammer.metrics.core.Stoppable;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.jmade.core.message.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -13,53 +12,42 @@ import org.springframework.kafka.listener.config.ContainerProperties;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MessageConsumer implements Stoppable{
+public class MessageConsumer implements Stoppable {
     private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
 
     private static final String GROUP = "group";
+
     private String topic;
-
     private KafkaMessageListenerContainer<Integer, String> container;
-    private HighLevelMessageConsumer messageConsumer;
+    private TopicManager topicManager;
 
-    TopicManager topicManager = new TopicManager();
-
-    public MessageConsumer(String topic, HighLevelMessageConsumer listener) {
+    public MessageConsumer(String topic, MessageListener listener) {
         this.topic = topic;
-        messageConsumer = listener;
-        initContainer(topic);
+        this.topicManager = new TopicManager();
+        initContainer(listener);
     }
 
-    private KafkaMessageListenerContainer initContainer(String topic1) {
-        topicManager.createTopic(topic1);
-        container = createContainer(topic1);
-        container.setupMessageListener(getListener());
+    private void initContainer(MessageListener listener) {
+        topicManager.createTopic(topic);
+        container = createContainer();
+        container.setupMessageListener(listener);
         container.start();
-
-        return container;
     }
 
-    private MessageListener getListener(){
-        return new MessageListener<Integer, String>() {
-
-            @Override
-            public void onMessage(ConsumerRecord<Integer, String> message) {
-                logger.info(message.topic() + " received: " + message.value());
-                messageConsumer.onMessageReceived(message.value());
-            }
-
-        };
-    }
-
-
-    private KafkaMessageListenerContainer<Integer, String> createContainer(String topic1) {
+    private KafkaMessageListenerContainer<Integer, String> createContainer() {
         Map<String, Object> props = consumerProps();
         DefaultKafkaConsumerFactory<Integer, String> cf =
-                new DefaultKafkaConsumerFactory<Integer, String>(props);
-        ContainerProperties containerProperties = new ContainerProperties(topic1);
-        KafkaMessageListenerContainer<Integer, String> container =
-                new KafkaMessageListenerContainer<>(cf, containerProperties);
+                new DefaultKafkaConsumerFactory<>(props);
+        ContainerProperties containerProperties = new ContainerProperties(topic);
+        container = new KafkaMessageListenerContainer<>(cf, containerProperties);
+
         return container;
+    }
+
+    @Override
+    public void stop() {
+        container.stop();
+        topicManager.deleteTopic(topic);
     }
 
     private Map<String, Object> consumerProps() {
@@ -74,11 +62,5 @@ public class MessageConsumer implements Stoppable{
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.StringDeserializer");
         return props;
-    }
-
-    @Override
-    public void stop() {
-        container.stop();
-        topicManager.deleteTopic(topic);
     }
 }

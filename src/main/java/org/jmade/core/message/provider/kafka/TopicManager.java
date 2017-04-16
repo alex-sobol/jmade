@@ -1,4 +1,4 @@
-package org.jmade.core.message;
+package org.jmade.core.message.provider.kafka;
 
 
 import kafka.admin.AdminUtils;
@@ -30,10 +30,12 @@ public class TopicManager {
     }
 
     public void deleteTopic(String name) {
-        AdminUtils.deleteTopic(zkUtils, name);
+        if (isTopicExists(name)) {
+            AdminUtils.deleteTopic(zkUtils, name);
+        }
     }
 
-    public boolean isTopicExists(String name){
+    public boolean isTopicExists(String name) {
         return AdminUtils.topicExists(zkUtils, name);
     }
 }

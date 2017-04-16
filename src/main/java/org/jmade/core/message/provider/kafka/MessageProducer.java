@@ -1,4 +1,4 @@
-package org.jmade.core.message;
+package org.jmade.core.message.provider.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
@@ -15,25 +15,20 @@ public class MessageProducer {
 
     private KafkaTemplate<Integer, String> template;
 
-    public MessageProducer(String topic) {
-        createTemplate(topic);
+    public MessageProducer(String defaultTopic) {
+        template = createTemplate(defaultTopic);
     }
 
-    public void send(String message){
-        template.sendDefault(message);
-    }
-
-    public void send(String topic, String message){
+    public void send(String topic, String message) {
         template.send(topic, message);
     }
 
-    private KafkaTemplate<Integer, String> createTemplate(String topic) {
+    private KafkaTemplate<Integer, String> createTemplate(String defaultTopic) {
         Map<String, Object> senderProps = senderProps();
-        ProducerFactory<Integer, String> pf =
-                new DefaultKafkaProducerFactory<Integer, String>(senderProps);
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(senderProps);
 
-        template = new KafkaTemplate<>(pf);
-        template.setDefaultTopic(topic);
+        KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
+        template.setDefaultTopic(defaultTopic);
 
         return template;
     }

@@ -1,7 +1,7 @@
 package org.jmade.core;
 
 import org.jmade.core.message.ACLMessage;
-import org.jmade.core.message.MessageManager;
+import org.jmade.core.message.provider.kafka.KafkaMessageManager;
 import org.jmade.core.message.MessageProcessor;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class Agent implements MessageProcessor{
 
     public String id;
 
-    private MessageManager messageManager;
+    private KafkaMessageManager kafkaMessageManager;
 
     public Agent() {
         this(UUID.randomUUID().toString());
@@ -23,11 +23,11 @@ public class Agent implements MessageProcessor{
     }
 
     public void onStart() {
-        messageManager = new MessageManager(id, this);
+        kafkaMessageManager = new KafkaMessageManager(id, this);
     }
 
     public void onStop() {
-        messageManager.stop();
+        kafkaMessageManager.stop();
     }
 
     public String getId() {
@@ -41,7 +41,7 @@ public class Agent implements MessageProcessor{
 
     public void dummySend(String id, List<String> messages){
         messages.forEach(message->{
-            messageManager.respond(new ACLMessage(id, message), message);
+            kafkaMessageManager.respond(new ACLMessage(id, message), message);
         });
     }
 }
