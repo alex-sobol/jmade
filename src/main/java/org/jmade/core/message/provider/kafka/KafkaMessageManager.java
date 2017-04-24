@@ -19,13 +19,16 @@ public class KafkaMessageManager implements MessageManager {
     private String id;
     private MessageProducer producer;
     private MessageConsumer consumer;
+    private MessageConsumer broadcastListener;
     private MessageProcessor messageProcessor;
     private MessageSerializer messageSerializer;
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
         producer = new MessageProducer(id);
-        consumer = new MessageConsumer(id, getListener());
+        MessageListener listener = getListener();
+        consumer = new MessageConsumer(id, listener);
+        broadcastListener = new MessageConsumer(BROADCAST_CHANNEL, listener);
         messageSerializer = new JsonSerializer();
         setMessageReceivedListener(messageProcessor);
     }
@@ -59,11 +62,11 @@ public class KafkaMessageManager implements MessageManager {
             @Override
             public void onMessage(ConsumerRecord<Integer, String> message) {
                 try {
-                    logger.info(message.topic() + " received: " + message.value());
+                    logger.info(id + " received: " + message.value());
                     ACLMessage aclMessage = messageSerializer.deserialize(message.value());
                     messageProcessor.onMessageReceived(aclMessage);
                 } catch (NullPointerException npe) {
-                    logger.error("NPE" + id);
+                    logger.error("NPE " + id);
                 }
             }
 

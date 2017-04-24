@@ -41,7 +41,7 @@ public class Agent implements MessageProcessor{
 
     public void dummySend(String id, List<String> messages){
         messages.forEach(message->{
-            kafkaMessageManager.respond(new ACLMessage(id, message), message);
+            kafkaMessageManager.broadcast(message);
         });
     }
 }
