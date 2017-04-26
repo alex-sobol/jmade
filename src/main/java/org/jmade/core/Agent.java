@@ -4,6 +4,7 @@ import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
 import org.jmade.core.message.MessageProcessor;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class Agent implements MessageProcessor{
     }
 
     @Override
-    public void onMessageReceived(ACLMessage message) {
+    public void onMessageReceived(ACLMessage message) throws IOException {
         System.err.println(message.getContent());
     }
 
@@ -43,5 +44,13 @@ public class Agent implements MessageProcessor{
         messages.forEach(message->{
             kafkaMessageManager.broadcast(message);
         });
+    }
+
+    protected void broadcast(String message){
+        kafkaMessageManager.broadcast(message);
+    }
+
+    protected void reply(ACLMessage message, String content){
+        kafkaMessageManager.respond(message, content);
     }
 }

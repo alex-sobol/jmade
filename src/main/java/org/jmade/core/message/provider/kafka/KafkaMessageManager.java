@@ -10,27 +10,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.listener.MessageListener;
 
+import java.io.IOException;
+
 public class KafkaMessageManager implements MessageManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaMessageManager.class);
 
     private static final String BROADCAST_CHANNEL = "broadcast";
 
     private String id;
     private MessageProducer producer;
+    //TODO: think over concept - onBroadCastReceived + onPrivateReceived or refactor
     private MessageConsumer consumer;
-    private MessageConsumer broadcastListener;
+    private MessageConsumer broadCastConsumer;
     private MessageProcessor messageProcessor;
     private MessageSerializer messageSerializer;
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
-        producer = new MessageProducer(id);
-        MessageListener listener = getListener();
-        consumer = new MessageConsumer(id, listener);
-        broadcastListener = new MessageConsumer(BROADCAST_CHANNEL, listener);
-        messageSerializer = new JsonSerializer();
         setMessageReceivedListener(messageProcessor);
+        producer = new MessageProducer(id);
+        MessageListener<Integer, String> listener = getListener();
+        consumer = new MessageConsumer(false, id, listener);
+        broadCastConsumer = new MessageConsumer(true, BROADCAST_CHANNEL, listener);
+        messageSerializer = new JsonSerializer();
+    }
+
+    @Override
+    public void setMessageReceivedListener(MessageProcessor messageReceivedListener) {
+        this.messageProcessor = messageReceivedListener;
     }
 
     @Override
@@ -38,6 +46,7 @@ public class KafkaMessageManager implements MessageManager {
         ACLMessage aclMessage = new ACLMessage(id, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
+            logger.debug(id + " broadcasts: " + data);
             producer.send(BROADCAST_CHANNEL, rawMessage);
         }
     }
@@ -47,13 +56,9 @@ public class KafkaMessageManager implements MessageManager {
         ACLMessage aclMessage = new ACLMessage(id, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
+            logger.debug( id + " responds to:" + message.getSenderId() + " - " + data);
             producer.send(message.getSenderId(), rawMessage);
         }
-    }
-
-    @Override
-    public void setMessageReceivedListener(MessageProcessor messageReceivedListener) {
-        this.messageProcessor = messageReceivedListener;
     }
 
     private MessageListener getListener() {
@@ -62,11 +67,13 @@ public class KafkaMessageManager implements MessageManager {
             @Override
             public void onMessage(ConsumerRecord<Integer, String> message) {
                 try {
-                    logger.info(id + " received: " + message.value());
+                    logger.info(id + " received from channel: " + message.topic() + " - " + message.value());
                     ACLMessage aclMessage = messageSerializer.deserialize(message.value());
                     messageProcessor.onMessageReceived(aclMessage);
                 } catch (NullPointerException npe) {
-                    logger.error("NPE " + id);
+                    logger.error("NPE in " + id);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 

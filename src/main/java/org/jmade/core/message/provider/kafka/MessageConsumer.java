@@ -19,11 +19,13 @@ public class MessageConsumer implements Stoppable {
     private static final String GROUP = "group";
 
     private String topic;
+    private boolean isBroadcast;
     private KafkaMessageListenerContainer<Integer, String> container;
     private TopicManager topicManager;
 
-    public MessageConsumer(String topic, MessageListener listener) {
+    public MessageConsumer(Boolean isBroadcast, String topic, MessageListener listener) {
         this.topic = topic;
+        this.isBroadcast = isBroadcast;
         this.topicManager = new TopicManager();
         initContainer(listener);
     }
@@ -40,28 +42,31 @@ public class MessageConsumer implements Stoppable {
         DefaultKafkaConsumerFactory<Integer, String> cf =
                 new DefaultKafkaConsumerFactory<>(props);
         ContainerProperties containerProperties = new ContainerProperties(topic);
-        container = new KafkaMessageListenerContainer<>(cf, containerProperties);
 
-        return container;
+        return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 
     @Override
     public void stop() {
         container.stop();
-        topicManager.deleteTopic(topic);
+        if(!isBroadcast) {
+            topicManager.deleteTopic(topic);
+        }
     }
 
     private Map<String, Object> consumerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+       /* props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);*/
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+        props.put("auto.offset.reset", "latest");
         return props;
     }
 }
