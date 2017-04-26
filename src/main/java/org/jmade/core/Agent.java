@@ -3,13 +3,15 @@ package org.jmade.core;
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
 import org.jmade.core.message.MessageProcessor;
+import org.jmade.logs.EventSendingLogger;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public class Agent implements MessageProcessor{
+public class Agent implements MessageProcessor {
     private static final String BROADCAST_TOPIC = "broadcast";
+    protected EventSendingLogger eventSendingLogger = new EventSendingLogger();
 
     public String id;
 
@@ -19,7 +21,7 @@ public class Agent implements MessageProcessor{
         this(UUID.randomUUID().toString());
     }
 
-    public Agent(String id){
+    public Agent(String id) {
         this.id = id;
     }
 
@@ -40,17 +42,20 @@ public class Agent implements MessageProcessor{
         System.err.println(message.getContent());
     }
 
-    public void dummySend(String id, List<String> messages){
-        messages.forEach(message->{
+    public void dummySend(String id, List<String> messages) {
+        messages.forEach(message -> {
             kafkaMessageManager.broadcast(message);
+            eventSendingLogger.message(message);
         });
     }
 
-    protected void broadcast(String message){
+    protected void broadcast(String message) {
         kafkaMessageManager.broadcast(message);
+        eventSendingLogger.message(message);
     }
 
-    protected void reply(ACLMessage message, String content){
+    protected void reply(ACLMessage message, String content) {
         kafkaMessageManager.respond(message, content);
+        eventSendingLogger.message(content);
     }
 }

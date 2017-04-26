@@ -1,5 +1,6 @@
-package org.jmade.core.logs.persistence.model;
+package org.jmade.logs.persistence.model;
 
+import org.jmade.logs.persistence.model.Event;
 import org.springframework.data.cassandra.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

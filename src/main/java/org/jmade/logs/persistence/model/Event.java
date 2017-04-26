@@ -1,4 +1,4 @@
-package org.jmade.core.logs.persistence.model;
+package org.jmade.logs.persistence.model;
 
 import org.springframework.data.cassandra.mapping.PrimaryKey;
 import org.springframework.data.cassandra.mapping.Table;
@@ -10,15 +10,10 @@ public class Event {
     @PrimaryKey
     private UUID id;
     private String actorId;
+    private EventLevel eventLevel;
     private String message;
 
     public Event() {
-    }
-
-    public Event(UUID id, String actorId, String message) {
-        this.id = id;
-        this.actorId = actorId;
-        this.message = message;
     }
 
     public UUID getId() {
@@ -43,5 +38,13 @@ public class Event {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public EventLevel getEventLevel() {
+        return eventLevel;
+    }
+
+    public void setEventLevel(EventLevel eventLevel) {
+        this.eventLevel = eventLevel;
     }
 }

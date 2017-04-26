@@ -30,9 +30,11 @@ public class KafkaMessageManager implements MessageManager {
         this.id = id;
         setMessageReceivedListener(messageProcessor);
         producer = new MessageProducer(id);
-        MessageListener<Integer, String> listener = getListener();
-        consumer = new MessageConsumer(false, id, listener);
-        broadCastConsumer = new MessageConsumer(true, BROADCAST_CHANNEL, listener);
+        if (messageProcessor != null) {
+            MessageListener<Integer, String> listener = getListener();
+            consumer = new MessageConsumer(false, id, listener);
+            broadCastConsumer = new MessageConsumer(true, BROADCAST_CHANNEL, listener);
+        }
         messageSerializer = new JsonSerializer();
     }
 
@@ -56,8 +58,18 @@ public class KafkaMessageManager implements MessageManager {
         ACLMessage aclMessage = new ACLMessage(id, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
-            logger.debug( id + " responds to:" + message.getSenderId() + " - " + data);
+            logger.debug(id + " responds to:" + message.getSenderId() + " - " + data);
             producer.send(message.getSenderId(), rawMessage);
+        }
+    }
+
+    @Override
+    public void send(String data) {
+        ACLMessage aclMessage = new ACLMessage(id, data);
+        String rawMessage = messageSerializer.serialize(aclMessage);
+        if (rawMessage != null) {
+            logger.debug(id + " broadcasts: " + data);
+            producer.send(id, rawMessage);
         }
     }
 
