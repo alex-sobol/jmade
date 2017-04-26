@@ -19,7 +19,7 @@ public class JsonSerializer implements MessageSerializer {
     }
 
     @Override
-    public String serialize(ACLMessage message) {
+    public String serialize(Object message) {
         String rawMessage = null;
         try {
             rawMessage = objectMapper.writeValueAsString(message);

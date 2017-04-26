@@ -24,7 +24,7 @@ public class KafkaMessageManager implements MessageManager {
     private MessageConsumer consumer;
     private MessageConsumer broadCastConsumer;
     private MessageProcessor messageProcessor;
-    private MessageSerializer messageSerializer;
+    private MessageSerializer<ACLMessage> messageSerializer;
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
