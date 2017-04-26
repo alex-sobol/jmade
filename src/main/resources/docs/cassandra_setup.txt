@@ -1,0 +1,5 @@
+bin/cqlsh
+CREATE KEYSPACE IF NOT EXISTS sample WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
+
+In properties:
+spring.data.cassandra.keyspace-name=sample
