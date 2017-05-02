@@ -18,21 +18,21 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     private static final String BROADCAST_CHANNEL = "broadcast";
 
     private String id;
-    private KafkaChannelSender producer;
+    private KafkaMessageProducer producer;
     //TODO: think over concept - onBroadCastReceived + onPrivateReceived or refactor
-    private KafkaChannelListener consumer;
-    private KafkaChannelListener broadCastConsumer;
+    private KafkaMessageConsumer consumer;
+    private KafkaMessageConsumer broadCastConsumer;
     private MessageProcessor messageProcessor;
     private MessageSerializer<ACLMessage> messageSerializer;
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
         setMessageReceivedListener(messageProcessor);
-        producer = new KafkaChannelSender();
+        producer = new KafkaMessageProducer();
         if (messageProcessor != null) {
-            consumer = new KafkaChannelListener(id, false);
+            consumer = new KafkaMessageConsumer(id, false);
             consumer.setMessageReceivedCallback(this);
-            broadCastConsumer = new KafkaChannelListener(BROADCAST_CHANNEL, true);
+            broadCastConsumer = new KafkaMessageConsumer(BROADCAST_CHANNEL, true);
             broadCastConsumer.setMessageReceivedCallback(this);
         }
         messageSerializer = new JsonSerializer();

@@ -1,5 +1,5 @@
 package org.jmade.core.message;
 
-public interface ChannelSender {
+public interface MessageProducer {
     void send(String channelName, String data);
 }

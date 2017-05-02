@@ -2,7 +2,7 @@ package org.jmade.core.message.provider.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.jmade.core.message.ChannelListener;
+import org.jmade.core.message.MessageConsumer;
 import org.jmade.core.message.MessageReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class KafkaChannelListener implements ChannelListener {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaChannelListener.class);
+public class KafkaMessageConsumer implements MessageConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaMessageConsumer.class);
 
     private String topic;
     private boolean isBroadcast;
@@ -24,14 +24,14 @@ public class KafkaChannelListener implements ChannelListener {
     private KafkaMessageListenerContainer<Integer, String> container;
     private TopicManager topicManager;
 
-    public KafkaChannelListener(String topic, Boolean isBroadcast, String groupName) {
+    public KafkaMessageConsumer(String topic, Boolean isBroadcast, String groupName) {
         this.topic = topic;
         this.isBroadcast = isBroadcast;
         this.groupName = groupName;
         this.topicManager = new TopicManager();
     }
 
-    public KafkaChannelListener(String topic, Boolean isBroadcast) {
+    public KafkaMessageConsumer(String topic, Boolean isBroadcast) {
         this(topic, isBroadcast, UUID.randomUUID().toString());
     }
 

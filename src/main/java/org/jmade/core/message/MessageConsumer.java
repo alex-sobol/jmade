@@ -1,5 +1,5 @@
 package org.jmade.core.message;
 
-public interface ChannelListener extends Stoppable{
+public interface MessageConsumer extends Stoppable{
     void setMessageReceivedCallback(MessageReceiver callback);
 }
