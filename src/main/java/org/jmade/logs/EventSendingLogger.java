@@ -18,7 +18,7 @@ public class EventSendingLogger {
 
     public EventSendingLogger() {
         //TODO: listen to channel not always required. Separate
-        this.messageManager = new KafkaMessageManager(LOGS_CHANNEL, null);
+        this.messageManager = new KafkaMessageManager(LOGS_CHANNEL);
         this.serializer = new JsonSerializer();
     }
 
@@ -38,7 +38,6 @@ public class EventSendingLogger {
         Event event = new Event();
         event.setEventLevel(level);
         event.setMessage(message);
-        messageManager.send(serializer.serialize(event));
+        messageManager.send(LOGS_CHANNEL, serializer.serialize(event));
     }
-
 }

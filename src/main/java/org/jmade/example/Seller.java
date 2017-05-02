@@ -45,7 +45,7 @@ public class Seller extends Agent {
             }
             TradeRequest tradeRequest = new TradeRequest();
             tradeRequest.setType(TradeRoundConstants.TRADE_FINISHED);
-            broadcast(objectMapper.writeValueAsString(tradeRequest));
+            send(Buyer.BROADCAST_TOPIC, objectMapper.writeValueAsString(tradeRequest));
 
             System.err.println("********************SELLER***************************");
             System.err.println(getId());
@@ -80,7 +80,7 @@ public class Seller extends Agent {
         TradeRequest tradeRequest = new TradeRequest();
         tradeRequest.setType(TradeRoundConstants.ROUND_STARTED);
         tradeRequest.setRound(current_round);
-        broadcast(objectMapper.writeValueAsString(tradeRequest));
+        send(Buyer.BROADCAST_TOPIC, objectMapper.writeValueAsString(tradeRequest));
     }
 
     private void makeDeal() throws IOException {

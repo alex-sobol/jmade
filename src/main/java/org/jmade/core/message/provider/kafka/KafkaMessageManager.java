@@ -10,50 +10,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaMessageManager.class);
 
-    private static final String BROADCAST_CHANNEL = "broadcast";
-
     private String id;
-    private KafkaMessageProducer producer;
-    //TODO: think over concept - onBroadCastReceived + onPrivateReceived or refactor
-    private KafkaMessageConsumer consumer;
-    private KafkaMessageConsumer broadCastConsumer;
     private MessageProcessor messageProcessor;
-    private MessageSerializer<ACLMessage> messageSerializer;
+
+    private KafkaMessageProducer producer;
+    private List<KafkaMessageConsumer> consumers = new ArrayList<>();
+
+    private MessageSerializer<ACLMessage> messageSerializer = new JsonSerializer();
     private TopicManager topicManager = new TopicManager();
 
-    public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
+
+    public KafkaMessageManager(String id) {
         this.id = id;
-        setMessageReceivedListener(messageProcessor);
-        producer = new KafkaMessageProducer();
-        if (messageProcessor != null) {
-            topicManager.createTopic(id);
-            consumer = new KafkaMessageConsumer(id);
-            consumer.setMessageReceivedCallback(this);
-            topicManager.createTopic(BROADCAST_CHANNEL);
-            broadCastConsumer = new KafkaMessageConsumer(BROADCAST_CHANNEL);
-            broadCastConsumer.setMessageReceivedCallback(this);
-        }
-        messageSerializer = new JsonSerializer();
+        this.producer = new KafkaMessageProducer();
     }
 
     @Override
-    public void setMessageReceivedListener(MessageProcessor messageReceivedListener) {
-        this.messageProcessor = messageReceivedListener;
+    public void setMessageProcessor(MessageProcessor callback){
+        this.messageProcessor = callback;
+        listenToChannel(id);
     }
 
     @Override
-    public void broadcast(String data) {
-        ACLMessage aclMessage = new ACLMessage(BROADCAST_CHANNEL, data);
-        String rawMessage = messageSerializer.serialize(aclMessage);
-        if (rawMessage != null) {
-            logger.debug(id + " broadcasts: " + data);
-            producer.send(BROADCAST_CHANNEL, rawMessage);
-        }
+    public void listenToChannel(String channelName) {
+        topicManager.createTopic(channelName);
+        KafkaMessageConsumer consumer = new KafkaMessageConsumer(channelName);
+        consumer.setMessageReceivedCallback(this);
+        consumers.add(consumer);
     }
 
     @Override
@@ -67,20 +57,13 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     }
 
     @Override
-    public void send(String data) {
+    public void send(String channelName, String data) {
         ACLMessage aclMessage = new ACLMessage(id, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
-            logger.debug(id + " broadcasts: " + data);
-            producer.send(id, rawMessage);
+            logger.debug(channelName + " broadcasts: " + data);
+            producer.send(channelName, rawMessage);
         }
-    }
-
-    @Override
-    public void stop() {
-        topicManager.deleteTopic(id);
-        consumer.stop();
-        broadCastConsumer.stop();
     }
 
     @Override
@@ -95,4 +78,13 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void stop() {
+        topicManager.deleteTopic(id);
+        consumers.forEach(KafkaMessageConsumer::stop);
+    }
+
+    //todo:add enable logs.
+    // Send and receive messsages - different case. MessageLog(type(sent-received), actorId, time, message)
 }

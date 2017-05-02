@@ -10,12 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class Agent implements MessageProcessor {
-    private static final String BROADCAST_TOPIC = "broadcast";
     protected EventSendingLogger eventSendingLogger = new EventSendingLogger();
 
     public String id;
 
-    private KafkaMessageManager kafkaMessageManager;
+    protected KafkaMessageManager kafkaMessageManager;
 
     public Agent() {
         this(UUID.randomUUID().toString());
@@ -26,7 +25,8 @@ public class Agent implements MessageProcessor {
     }
 
     public void onStart() {
-        kafkaMessageManager = new KafkaMessageManager(id, this);
+        kafkaMessageManager = new KafkaMessageManager(id);
+        kafkaMessageManager.setMessageProcessor(this);
     }
 
     public void onStop() {
@@ -44,18 +44,17 @@ public class Agent implements MessageProcessor {
 
     public void dummySend(String id, List<String> messages) {
         messages.forEach(message -> {
-            kafkaMessageManager.broadcast(message);
+            kafkaMessageManager.send(id, message);
             eventSendingLogger.message(message);
         });
-    }
-
-    protected void broadcast(String message) {
-        kafkaMessageManager.broadcast(message);
-        eventSendingLogger.message(message);
     }
 
     protected void reply(ACLMessage message, String content) {
         kafkaMessageManager.respond(message, content);
         eventSendingLogger.message(content);
+    }
+
+    protected void send(String channel, String data){
+        kafkaMessageManager.send(channel, data);
     }
 }

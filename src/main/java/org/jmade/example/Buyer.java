@@ -13,6 +13,7 @@ import java.io.IOException;
 
 public class Buyer extends Agent {
 
+    public static final String BROADCAST_TOPIC = "broadcast";
     private static final Logger logger = LoggerFactory.getLogger(Buyer.class);
 
     private Double money;
@@ -29,6 +30,12 @@ public class Buyer extends Agent {
         super(topic);
         this.money = money;
         this.bidIncreasePart = bidIncreasePart;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        kafkaMessageManager.listenToChannel(BROADCAST_TOPIC);
     }
 
     @Override
