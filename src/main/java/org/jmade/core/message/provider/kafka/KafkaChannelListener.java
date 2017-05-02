@@ -1,7 +1,9 @@
 package org.jmade.core.message.provider.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.jmade.core.message.Stoppable;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.jmade.core.message.ChannelListener;
+import org.jmade.core.message.MessageReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -13,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class MessageConsumer implements Stoppable {
-    private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
+public class KafkaChannelListener implements ChannelListener {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaChannelListener.class);
 
     private String topic;
     private boolean isBroadcast;
@@ -22,22 +24,22 @@ public class MessageConsumer implements Stoppable {
     private KafkaMessageListenerContainer<Integer, String> container;
     private TopicManager topicManager;
 
-    public MessageConsumer(String topic, Boolean isBroadcast, String groupName, MessageListener listener) {
+    public KafkaChannelListener(String topic, Boolean isBroadcast, String groupName) {
         this.topic = topic;
         this.isBroadcast = isBroadcast;
         this.groupName = groupName;
         this.topicManager = new TopicManager();
-        initContainer(listener);
     }
 
-    public MessageConsumer(String topic, Boolean isBroadcast, MessageListener listener) {
-        this(topic, isBroadcast, UUID.randomUUID().toString(), listener);
+    public KafkaChannelListener(String topic, Boolean isBroadcast) {
+        this(topic, isBroadcast, UUID.randomUUID().toString());
     }
 
-    private void initContainer(MessageListener listener) {
+    @Override
+    public void setMessageReceivedCallback(MessageReceiver callback) {
         topicManager.createTopic(topic);
         container = createContainer();
-        container.setupMessageListener(listener);
+        container.setupMessageListener(getListener(callback));
         container.start();
     }
 
@@ -48,6 +50,16 @@ public class MessageConsumer implements Stoppable {
         ContainerProperties containerProperties = new ContainerProperties(topic);
 
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
+    }
+
+    private MessageListener getListener(MessageReceiver callback) {
+        return new MessageListener<Integer, String>() {
+
+            @Override
+            public void onMessage(ConsumerRecord<Integer, String> message) {
+                callback.onMessageReceived(message.topic(), message.value());
+            }
+        };
     }
 
     @Override

@@ -1,39 +1,39 @@
 package org.jmade.core.message.provider.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageManager;
 import org.jmade.core.message.MessageProcessor;
+import org.jmade.core.message.MessageReceiver;
 import org.jmade.core.message.serialize.JsonSerializer;
 import org.jmade.core.message.serialize.MessageSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.listener.MessageListener;
 
 import java.io.IOException;
 
-public class KafkaMessageManager implements MessageManager {
+public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaMessageManager.class);
 
     private static final String BROADCAST_CHANNEL = "broadcast";
 
     private String id;
-    private MessageProducer producer;
+    private KafkaChannelSender producer;
     //TODO: think over concept - onBroadCastReceived + onPrivateReceived or refactor
-    private MessageConsumer consumer;
-    private MessageConsumer broadCastConsumer;
+    private KafkaChannelListener consumer;
+    private KafkaChannelListener broadCastConsumer;
     private MessageProcessor messageProcessor;
     private MessageSerializer<ACLMessage> messageSerializer;
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
         setMessageReceivedListener(messageProcessor);
-        producer = new MessageProducer();
+        producer = new KafkaChannelSender();
         if (messageProcessor != null) {
-            MessageListener<Integer, String> listener = getListener();
-            consumer = new MessageConsumer(id, false, listener);
-            broadCastConsumer = new MessageConsumer(BROADCAST_CHANNEL, true, listener);
+            consumer = new KafkaChannelListener(id, false);
+            consumer.setMessageReceivedCallback(this);
+            broadCastConsumer = new KafkaChannelListener(BROADCAST_CHANNEL, true);
+            broadCastConsumer.setMessageReceivedCallback(this);
         }
         messageSerializer = new JsonSerializer();
     }
@@ -73,27 +73,21 @@ public class KafkaMessageManager implements MessageManager {
         }
     }
 
-    private MessageListener getListener() {
-        return new MessageListener<Integer, String>() {
-
-            @Override
-            public void onMessage(ConsumerRecord<Integer, String> message) {
-                try {
-                    logger.info(id + " received from channel: " + message.topic() + " - " + message.value());
-                    ACLMessage aclMessage = messageSerializer.deserialize(message.value());
-                    messageProcessor.onMessageReceived(aclMessage);
-                } catch (NullPointerException npe) {
-                    logger.error("NPE in " + id);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        };
-    }
-
     @Override
     public void stop() {
         consumer.stop();
+    }
+
+    @Override
+    public void onMessageReceived(String channelName, String data) {
+        try {
+            logger.info(id + " received from channel: " + channelName + " - " + data);
+            ACLMessage aclMessage = messageSerializer.deserialize(data);
+            messageProcessor.onMessageReceived(aclMessage);
+        } catch (NullPointerException npe) {
+            logger.error("NPE in " + id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

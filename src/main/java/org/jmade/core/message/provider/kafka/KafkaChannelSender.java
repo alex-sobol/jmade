@@ -1,6 +1,7 @@
 package org.jmade.core.message.provider.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.jmade.core.message.ChannelSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -10,17 +11,18 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MessageProducer {
-    private static final Logger logger = LoggerFactory.getLogger(MessageProducer.class);
+public class KafkaChannelSender implements ChannelSender {
+    private static final Logger logger = LoggerFactory.getLogger(KafkaChannelSender.class);
 
     private KafkaTemplate<Integer, String> template;
 
-    public MessageProducer() {
+    public KafkaChannelSender() {
         template = createTemplate();
     }
 
-    public void send(String topic, String message) {
-        template.send(topic, message);
+    @Override
+    public void send(String topic, String data) {
+        template.send(topic, data);
     }
 
     private KafkaTemplate<Integer, String> createTemplate() {
