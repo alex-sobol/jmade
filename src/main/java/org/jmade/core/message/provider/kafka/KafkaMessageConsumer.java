@@ -16,28 +16,24 @@ import java.util.Map;
 import java.util.UUID;
 
 public class KafkaMessageConsumer implements MessageConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaMessageConsumer.class);
-
     private String topic;
-    private boolean isBroadcast;
     private String groupName;
     private KafkaMessageListenerContainer<Integer, String> container;
-    private TopicManager topicManager;
 
-    public KafkaMessageConsumer(String topic, Boolean isBroadcast, String groupName) {
+    public KafkaMessageConsumer(String topic, String groupName) {
         this.topic = topic;
-        this.isBroadcast = isBroadcast;
         this.groupName = groupName;
-        this.topicManager = new TopicManager();
     }
 
-    public KafkaMessageConsumer(String topic, Boolean isBroadcast) {
-        this(topic, isBroadcast, UUID.randomUUID().toString());
+    public KafkaMessageConsumer(String topic) {
+        this(topic, UUID.randomUUID().toString());
     }
 
     @Override
     public void setMessageReceivedCallback(MessageReceiver callback) {
-        topicManager.createTopic(topic);
+        if (container != null) {
+            container.stop();
+        }
         container = createContainer();
         container.setupMessageListener(getListener(callback));
         container.start();
@@ -65,9 +61,6 @@ public class KafkaMessageConsumer implements MessageConsumer {
     @Override
     public void stop() {
         container.stop();
-        if(!isBroadcast) {
-            topicManager.deleteTopic(topic);
-        }
     }
 
     private Map<String, Object> consumerProps() {

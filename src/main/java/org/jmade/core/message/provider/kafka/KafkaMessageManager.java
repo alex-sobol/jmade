@@ -24,15 +24,18 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     private KafkaMessageConsumer broadCastConsumer;
     private MessageProcessor messageProcessor;
     private MessageSerializer<ACLMessage> messageSerializer;
+    private TopicManager topicManager = new TopicManager();
 
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
         setMessageReceivedListener(messageProcessor);
         producer = new KafkaMessageProducer();
         if (messageProcessor != null) {
-            consumer = new KafkaMessageConsumer(id, false);
+            topicManager.createTopic(id);
+            consumer = new KafkaMessageConsumer(id);
             consumer.setMessageReceivedCallback(this);
-            broadCastConsumer = new KafkaMessageConsumer(BROADCAST_CHANNEL, true);
+            topicManager.createTopic(BROADCAST_CHANNEL);
+            broadCastConsumer = new KafkaMessageConsumer(BROADCAST_CHANNEL);
             broadCastConsumer.setMessageReceivedCallback(this);
         }
         messageSerializer = new JsonSerializer();
@@ -75,7 +78,9 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     @Override
     public void stop() {
+        topicManager.deleteTopic(id);
         consumer.stop();
+        broadCastConsumer.stop();
     }
 
     @Override
