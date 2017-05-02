@@ -2,8 +2,6 @@ package org.jmade.core.message.provider.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.jmade.core.message.MessageProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -12,25 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KafkaMessageProducer implements MessageProducer {
-    private static final Logger logger = LoggerFactory.getLogger(KafkaMessageProducer.class);
 
     private KafkaTemplate<Integer, String> template;
 
     public KafkaMessageProducer() {
-        template = createTemplate();
+        Map<String, Object> senderProps = senderProps();
+        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(senderProps);
+        template = new KafkaTemplate<>(pf);
     }
 
     @Override
     public void send(String topic, String data) {
         template.send(topic, data);
-    }
-
-    private KafkaTemplate<Integer, String> createTemplate() {
-        Map<String, Object> senderProps = senderProps();
-        ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(senderProps);
-        KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
-
-        return template;
     }
 
     private Map<String, Object> senderProps() {
