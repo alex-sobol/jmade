@@ -29,7 +29,7 @@ public class KafkaMessageManager implements MessageManager {
     public KafkaMessageManager(String id, MessageProcessor messageProcessor) {
         this.id = id;
         setMessageReceivedListener(messageProcessor);
-        producer = new MessageProducer(id);
+        producer = new MessageProducer();
         if (messageProcessor != null) {
             MessageListener<Integer, String> listener = getListener();
             consumer = new MessageConsumer(false, id, listener);
@@ -45,7 +45,7 @@ public class KafkaMessageManager implements MessageManager {
 
     @Override
     public void broadcast(String data) {
-        ACLMessage aclMessage = new ACLMessage(id, data);
+        ACLMessage aclMessage = new ACLMessage(BROADCAST_CHANNEL, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
             logger.debug(id + " broadcasts: " + data);

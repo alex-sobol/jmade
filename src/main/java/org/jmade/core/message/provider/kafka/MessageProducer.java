@@ -15,20 +15,18 @@ public class MessageProducer {
 
     private KafkaTemplate<Integer, String> template;
 
-    public MessageProducer(String defaultTopic) {
-        template = createTemplate(defaultTopic);
+    public MessageProducer() {
+        template = createTemplate();
     }
 
     public void send(String topic, String message) {
         template.send(topic, message);
     }
 
-    private KafkaTemplate<Integer, String> createTemplate(String defaultTopic) {
+    private KafkaTemplate<Integer, String> createTemplate() {
         Map<String, Object> senderProps = senderProps();
         ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(senderProps);
-
         KafkaTemplate<Integer, String> template = new KafkaTemplate<>(pf);
-        template.setDefaultTopic(defaultTopic);
 
         return template;
     }
