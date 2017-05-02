@@ -32,8 +32,8 @@ public class KafkaMessageManager implements MessageManager {
         producer = new MessageProducer();
         if (messageProcessor != null) {
             MessageListener<Integer, String> listener = getListener();
-            consumer = new MessageConsumer(false, id, listener);
-            broadCastConsumer = new MessageConsumer(true, BROADCAST_CHANNEL, listener);
+            consumer = new MessageConsumer(id, false, listener);
+            broadCastConsumer = new MessageConsumer(BROADCAST_CHANNEL, true, listener);
         }
         messageSerializer = new JsonSerializer();
     }

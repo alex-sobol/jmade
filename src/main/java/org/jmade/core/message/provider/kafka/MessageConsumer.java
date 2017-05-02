@@ -16,18 +16,22 @@ import java.util.UUID;
 public class MessageConsumer implements Stoppable {
     private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
 
-    private static final String GROUP = "group";
-
     private String topic;
     private boolean isBroadcast;
+    private String groupName;
     private KafkaMessageListenerContainer<Integer, String> container;
     private TopicManager topicManager;
 
-    public MessageConsumer(Boolean isBroadcast, String topic, MessageListener listener) {
+    public MessageConsumer(String topic, Boolean isBroadcast, String groupName, MessageListener listener) {
         this.topic = topic;
         this.isBroadcast = isBroadcast;
+        this.groupName = groupName;
         this.topicManager = new TopicManager();
         initContainer(listener);
+    }
+
+    public MessageConsumer(String topic, Boolean isBroadcast, MessageListener listener) {
+        this(topic, isBroadcast, UUID.randomUUID().toString(), listener);
     }
 
     private void initContainer(MessageListener listener) {
@@ -57,14 +61,14 @@ public class MessageConsumer implements Stoppable {
     private Map<String, Object> consumerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
-       /* props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);*/
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupName);
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.IntegerDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.StringDeserializer");
+        /* props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);*/
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put("auto.offset.reset", "latest");
         return props;
