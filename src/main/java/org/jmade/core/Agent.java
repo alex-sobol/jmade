@@ -40,7 +40,6 @@ public class Agent implements MessageProcessor {
 
     @Override
     public void onMessageReceived(ACLMessage message) throws IOException {
-        System.err.println(message.getContent());
     }
 
     public void dummySend(String id, List<String> messages) {
