@@ -19,8 +19,6 @@ import org.springframework.context.annotation.Configuration;
 public class PlatformApplication {
 
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Well");
-
         ConfigurableApplicationContext context = SpringApplication.run(PlatformApplication.class, args);
         MessageLogRepository messageLogRepository = context.getBean(MessageLogRepository.class);
         AgentRunner agentRunner = new AgentRunner();
@@ -28,6 +26,5 @@ public class PlatformApplication {
         agentRunner.run(new Buyer("buyer1", 1000.0, 0.1));
         agentRunner.run(new Buyer("buyer2", 1000.0, 1.0));
         agentRunner.run(new Seller("seller"));
-        SpringApplication.run(PlatformApplication.class, args);
     }
 }
