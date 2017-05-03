@@ -6,17 +6,16 @@ import org.springframework.data.cassandra.mapping.Table;
 import java.util.Date;
 import java.util.UUID;
 
-@Table
+@Table("message_log")
 public class MessageLog {
-    public static final String TYPE_SENT = "SEND";
+    public static final String TYPE_SENT = "SENT";
     public static final String TYPE_RECEIVED = "RECEIVED";
-
 
     @PrimaryKey
     private UUID id;
     private String actorId;
     private String type;
-    private Date date;
+    private Date createdDate;
     private String content;
 
     public UUID getId() {
@@ -35,12 +34,12 @@ public class MessageLog {
         this.type = type;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
     public String getContent() {

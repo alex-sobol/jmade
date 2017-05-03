@@ -3,3 +3,5 @@ CREATE KEYSPACE IF NOT EXISTS sample WITH replication = {'class':'SimpleStrategy
 
 In properties:
 spring.data.cassandra.keyspace-name=sample
+
+CREATE TABLE IF NOT EXISTS  sample.message_log (id UUID,actorId varchar,type varchar,createdDate timestamp,content varchar,primary key((id)));

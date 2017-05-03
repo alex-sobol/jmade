@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
@@ -23,7 +24,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     protected KafkaMessageProducer producer;
     private List<KafkaMessageConsumer> consumers = new ArrayList<>();
 
-    private MessageSerializer<ACLMessage> messageSerializer = new JsonSerializer();
+    protected MessageSerializer<ACLMessage> messageSerializer = new JsonSerializer();
     private TopicManager topicManager = new TopicManager();
 
 
@@ -33,15 +34,19 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     }
 
     @Override
-    public void setMessageProcessor(MessageProcessor callback){
+    public void setMessageProcessor(MessageProcessor callback) {
         this.messageProcessor = callback;
         listenToChannel(id);
     }
 
     @Override
     public void listenToChannel(String channelName) {
+        listenToChannel(channelName, UUID.randomUUID().toString());
+    }
+
+    public void listenToChannel(String channelName, String groupName) {
         topicManager.createTopic(channelName);
-        KafkaMessageConsumer consumer = new KafkaMessageConsumer(channelName);
+        KafkaMessageConsumer consumer = new KafkaMessageConsumer(channelName, groupName);
         consumer.setMessageReceivedCallback(this);
         consumers.add(consumer);
     }

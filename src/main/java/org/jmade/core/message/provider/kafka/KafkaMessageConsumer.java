@@ -4,8 +4,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jmade.core.message.MessageConsumer;
 import org.jmade.core.message.MessageReceiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
@@ -13,7 +11,6 @@ import org.springframework.kafka.listener.config.ContainerProperties;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class KafkaMessageConsumer implements MessageConsumer {
     private String topic;
@@ -23,10 +20,6 @@ public class KafkaMessageConsumer implements MessageConsumer {
     public KafkaMessageConsumer(String topic, String groupName) {
         this.topic = topic;
         this.groupName = groupName;
-    }
-
-    public KafkaMessageConsumer(String topic) {
-        this(topic, UUID.randomUUID().toString());
     }
 
     @Override
