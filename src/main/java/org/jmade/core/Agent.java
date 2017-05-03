@@ -1,6 +1,7 @@
 package org.jmade.core;
 
 import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.logs.EventSendingLogger;
@@ -25,7 +26,7 @@ public class Agent implements MessageProcessor {
     }
 
     public void onStart() {
-        kafkaMessageManager = new KafkaMessageManager(id);
+        kafkaMessageManager = new KafkaLoggableMessageManager(id);
         kafkaMessageManager.setMessageProcessor(this);
     }
 

@@ -17,10 +17,10 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaMessageManager.class);
 
-    private String id;
+    protected String id;
     private MessageProcessor messageProcessor;
 
-    private KafkaMessageProducer producer;
+    protected KafkaMessageProducer producer;
     private List<KafkaMessageConsumer> consumers = new ArrayList<>();
 
     private MessageSerializer<ACLMessage> messageSerializer = new JsonSerializer();
@@ -48,12 +48,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     @Override
     public void respond(ACLMessage message, String data) {
-        ACLMessage aclMessage = new ACLMessage(id, data);
-        String rawMessage = messageSerializer.serialize(aclMessage);
-        if (rawMessage != null) {
-            logger.debug(id + " responds to:" + message.getSenderId() + " - " + data);
-            producer.send(message.getSenderId(), rawMessage);
-        }
+        send(message.getSenderId(), data);
     }
 
     @Override
@@ -61,7 +56,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
         ACLMessage aclMessage = new ACLMessage(id, data);
         String rawMessage = messageSerializer.serialize(aclMessage);
         if (rawMessage != null) {
-            logger.debug(channelName + " broadcasts: " + data);
+            logger.debug(channelName + " sends: " + data);
             producer.send(channelName, rawMessage);
         }
     }
