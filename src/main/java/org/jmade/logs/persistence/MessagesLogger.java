@@ -4,8 +4,8 @@ import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
+import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
-import org.jmade.core.message.serialize.MessageLogConverter;
 import org.jmade.logs.persistence.model.MessageLog;
 import org.jmade.logs.persistence.model.MessageLogRepository;
 
@@ -16,7 +16,7 @@ public class MessagesLogger implements MessageProcessor {
 
     private static final String LOGGER_GROUP = "LOGGERS";
 
-    private MessageConverter<MessageLog> messageLogMessageConverter = new MessageLogConverter();
+    private MessageConverter<MessageLog> messageLogMessageConverter = new JsonConverter<>(MessageLog.class);
     private MessageLogRepository messageLogRepository;
     protected KafkaMessageManager kafkaMessageManager;
 

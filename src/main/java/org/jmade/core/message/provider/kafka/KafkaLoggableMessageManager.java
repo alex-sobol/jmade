@@ -2,14 +2,13 @@ package org.jmade.core.message.provider.kafka;
 
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.serialize.JsonConverter;
-import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.MessageLog;
 
 import java.util.Date;
 
 public class KafkaLoggableMessageManager extends KafkaMessageManager {
     public static final String MESSAGE_LOG_CHANNEL = "message-log";
-    private MessageConverter<MessageLog> messageLogMessageConverter = new JsonConverter();
+    private JsonConverter<MessageLog> messageLogMessageConverter = new JsonConverter<>(MessageLog.class);
 
     public KafkaLoggableMessageManager(String id) {
         super(id);

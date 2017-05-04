@@ -5,7 +5,6 @@ import org.jmade.core.message.MessageManager;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.MessageReceiver;
 import org.jmade.core.message.serialize.JsonConverter;
-import org.jmade.core.message.serialize.MessageConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     protected KafkaMessageProducer producer;
     private List<KafkaMessageConsumer> consumers = new ArrayList<>();
 
-    protected MessageConverter<ACLMessage> messageConverter = new JsonConverter();
+    protected JsonConverter<ACLMessage> messageConverter = new JsonConverter<>(ACLMessage.class);
     private TopicManager topicManager = new TopicManager();
 
 

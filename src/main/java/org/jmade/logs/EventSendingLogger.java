@@ -13,12 +13,12 @@ public class EventSendingLogger {
 
     private MessageManager messageManager;
     //TODO: clean object mapper;
-    private MessageConverter serializer;
+    private MessageConverter<Event> serializer;
 
     public EventSendingLogger() {
         //TODO: listen to channel not always required. Separate
         this.messageManager = new KafkaMessageManager(LOGS_CHANNEL);
-        this.serializer = new JsonConverter();
+        this.serializer = new JsonConverter<>(Event.class);
     }
 
     public void error(String message) {
