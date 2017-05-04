@@ -2,34 +2,54 @@ package org.jmade;
 
 import org.jmade.core.Agent;
 import org.jmade.core.AgentRegistrationUtil;
-import org.jmade.logs.persistence.model.Event;
-import org.jmade.logs.persistence.model.EventRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class ZooKeeperTest {
 
     @Test
-    public void testWriteToZooKeeper() {
+    public void testCreateDeleteNodes() throws IOException {
         AgentRegistrationUtil agentRegistrationUtil = new AgentRegistrationUtil();
         agentRegistrationUtil.register(new Agent("test"));
         agentRegistrationUtil.register(new Agent("test1"));
-        List<String> agents = agentRegistrationUtil.getAgents();
+        List<String> agents = agentRegistrationUtil.getAgentsIds();
         assert agents.size() == 2;
 
         agentRegistrationUtil.delete(new Agent("test"));
         agentRegistrationUtil.delete(new Agent("test1"));
-
-        agents = agentRegistrationUtil.getAgents();
+        agents = agentRegistrationUtil.getAgentsIds();
         assert agents.size() == 0;
+
+        agentRegistrationUtil.close();
     }
 
+    @Test
+    public void testWriteEphemeralNodes() throws IOException {
+        AgentRegistrationUtil agentRegistrationUtil = new AgentRegistrationUtil();
+        agentRegistrationUtil.register(new Agent("test2"));
+        agentRegistrationUtil.register(new Agent("test3"));
+        List<String> agents = agentRegistrationUtil.getAgentsIds();
+        assert agents.size() == 2;
+        agentRegistrationUtil.close();
+
+        agentRegistrationUtil = new AgentRegistrationUtil();
+        agents = agentRegistrationUtil.getAgentsIds();
+        assert agents.size() == 0;
+        agentRegistrationUtil.close();
+    }
+
+    @Test
+    public void testEphemeralNodesWithoutCloseClient() throws IOException {
+        AgentRegistrationUtil agentRegistrationUtil = new AgentRegistrationUtil();
+        agentRegistrationUtil.register(new Agent("test4"));
+        List<String> agents = agentRegistrationUtil.getAgentsIds();
+        assert agents.size() == 1;
+    }
 }

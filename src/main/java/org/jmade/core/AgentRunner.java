@@ -16,7 +16,6 @@ public class AgentRunner implements Stoppable {
     public AgentRunner() {
         this.agents = new ArrayList<>();
         this.pool = Executors.newFixedThreadPool(10);
-        registrationUtil.clean();
     }
 
     public void run(Agent agent) {
