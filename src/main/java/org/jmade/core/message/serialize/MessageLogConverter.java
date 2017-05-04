@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 //todo:serializers become generic
-public class MessageLogSerializer implements MessageSerializer {
+public class MessageLogConverter implements MessageConverter {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageLogSerializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageLogConverter.class);
 
     ObjectMapper objectMapper;
 
-    public MessageLogSerializer() {
+    public MessageLogConverter() {
         objectMapper = new ObjectMapper();
     }
 

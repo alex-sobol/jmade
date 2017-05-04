@@ -4,8 +4,8 @@ import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageManager;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.MessageReceiver;
-import org.jmade.core.message.serialize.JsonSerializer;
-import org.jmade.core.message.serialize.MessageSerializer;
+import org.jmade.core.message.serialize.JsonConverter;
+import org.jmade.core.message.serialize.MessageConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     protected KafkaMessageProducer producer;
     private List<KafkaMessageConsumer> consumers = new ArrayList<>();
 
-    protected MessageSerializer<ACLMessage> messageSerializer = new JsonSerializer();
+    protected MessageConverter<ACLMessage> messageConverter = new JsonConverter();
     private TopicManager topicManager = new TopicManager();
 
 
@@ -61,7 +61,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     @Override
     public void send(String channelName, String data) {
         ACLMessage aclMessage = new ACLMessage(id, data);
-        String rawMessage = messageSerializer.serialize(aclMessage);
+        String rawMessage = messageConverter.serialize(aclMessage);
         if (rawMessage != null) {
             logger.debug(channelName + " sends: " + data);
             producer.send(channelName, rawMessage);
@@ -72,7 +72,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     public void onMessageReceived(String channelName, String data) {
         try {
             logger.info(id + " received from channel: " + channelName + " - " + data);
-            ACLMessage aclMessage = messageSerializer.deserialize(data);
+            ACLMessage aclMessage = messageConverter.deserialize(data);
             messageProcessor.onMessageReceived(aclMessage);
         } catch (NullPointerException npe) {
             logger.error("NPE in " + id, npe);

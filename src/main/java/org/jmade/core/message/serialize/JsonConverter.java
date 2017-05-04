@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 //todo:make package-private
-public class JsonSerializer implements MessageSerializer {
+public class JsonConverter implements MessageConverter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonSerializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonConverter.class);
 
     ObjectMapper objectMapper;
 
-    public JsonSerializer() {
+    public JsonConverter() {
         objectMapper = new ObjectMapper();
     }
 

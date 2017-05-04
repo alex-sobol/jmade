@@ -1,10 +1,9 @@
 package org.jmade.logs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jmade.core.message.MessageManager;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
-import org.jmade.core.message.serialize.JsonSerializer;
-import org.jmade.core.message.serialize.MessageSerializer;
+import org.jmade.core.message.serialize.JsonConverter;
+import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.Event;
 import org.jmade.logs.persistence.model.EventLevel;
 
@@ -14,12 +13,12 @@ public class EventSendingLogger {
 
     private MessageManager messageManager;
     //TODO: clean object mapper;
-    private MessageSerializer serializer;
+    private MessageConverter serializer;
 
     public EventSendingLogger() {
         //TODO: listen to channel not always required. Separate
         this.messageManager = new KafkaMessageManager(LOGS_CHANNEL);
-        this.serializer = new JsonSerializer();
+        this.serializer = new JsonConverter();
     }
 
     public void error(String message) {

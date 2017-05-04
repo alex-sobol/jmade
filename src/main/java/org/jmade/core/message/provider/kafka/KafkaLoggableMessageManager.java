@@ -1,15 +1,15 @@
 package org.jmade.core.message.provider.kafka;
 
 import org.jmade.core.message.ACLMessage;
-import org.jmade.core.message.serialize.JsonSerializer;
-import org.jmade.core.message.serialize.MessageSerializer;
+import org.jmade.core.message.serialize.JsonConverter;
+import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.MessageLog;
 
 import java.util.Date;
 
 public class KafkaLoggableMessageManager extends KafkaMessageManager {
     public static final String MESSAGE_LOG_CHANNEL = "message-log";
-    private MessageSerializer<MessageLog> messageLogMessageSerializer = new JsonSerializer();
+    private MessageConverter<MessageLog> messageLogMessageConverter = new JsonConverter();
 
     public KafkaLoggableMessageManager(String id) {
         super(id);
@@ -22,8 +22,8 @@ public class KafkaLoggableMessageManager extends KafkaMessageManager {
         super.send(channelName, data);
 
         MessageLog messageLog = createLog(data, MessageLog.TYPE_SENT);
-        ACLMessage aclMessage = new ACLMessage(id, messageLogMessageSerializer.serialize(messageLog));
-        producer.send(MESSAGE_LOG_CHANNEL, messageSerializer.serialize(aclMessage));
+        ACLMessage aclMessage = new ACLMessage(id, messageLogMessageConverter.serialize(messageLog));
+        producer.send(MESSAGE_LOG_CHANNEL, messageConverter.serialize(aclMessage));
     }
 
     // TODO: IMQ or behaviour in case of message processing errors ????
@@ -31,8 +31,8 @@ public class KafkaLoggableMessageManager extends KafkaMessageManager {
     public void onMessageReceived(String channelName, String data) {
         super.onMessageReceived(channelName, data);
         MessageLog messageLog = createLog(data, MessageLog.TYPE_RECEIVED);
-        ACLMessage aclMessage = new ACLMessage(id, messageLogMessageSerializer.serialize(messageLog));
-        producer.send(MESSAGE_LOG_CHANNEL, messageSerializer.serialize(aclMessage));
+        ACLMessage aclMessage = new ACLMessage(id, messageLogMessageConverter.serialize(messageLog));
+        producer.send(MESSAGE_LOG_CHANNEL, messageConverter.serialize(aclMessage));
     }
 
     private MessageLog createLog(String content, String type) {

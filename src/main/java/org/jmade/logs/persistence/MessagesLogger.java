@@ -1,12 +1,11 @@
 package org.jmade.logs.persistence;
 
-import org.jmade.core.Agent;
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
-import org.jmade.core.message.serialize.MessageLogSerializer;
-import org.jmade.core.message.serialize.MessageSerializer;
+import org.jmade.core.message.serialize.MessageConverter;
+import org.jmade.core.message.serialize.MessageLogConverter;
 import org.jmade.logs.persistence.model.MessageLog;
 import org.jmade.logs.persistence.model.MessageLogRepository;
 
@@ -17,7 +16,7 @@ public class MessagesLogger implements MessageProcessor {
 
     private static final String LOGGER_GROUP = "LOGGERS";
 
-    private MessageSerializer<MessageLog> messageLogMessageSerializer = new MessageLogSerializer();
+    private MessageConverter<MessageLog> messageLogMessageConverter = new MessageLogConverter();
     private MessageLogRepository messageLogRepository;
     protected KafkaMessageManager kafkaMessageManager;
 
@@ -33,7 +32,7 @@ public class MessagesLogger implements MessageProcessor {
 
     @Override
     public void onMessageReceived(ACLMessage message) throws IOException {
-        MessageLog messageLog = messageLogMessageSerializer.deserialize(message.getContent());
+        MessageLog messageLog = messageLogMessageConverter.deserialize(message.getContent());
         messageLog.setId(UUID.randomUUID());
         messageLogRepository.save(messageLog);
     }
