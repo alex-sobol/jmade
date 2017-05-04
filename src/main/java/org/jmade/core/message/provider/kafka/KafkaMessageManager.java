@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// TODO: Split into two different implementations
 public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaMessageManager.class);
@@ -56,6 +57,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
         send(message.getSenderId(), data);
     }
 
+    // TODO: Having consumer and producer in one place is not the best idea
     @Override
     public void send(String channelName, String data) {
         ACLMessage aclMessage = new ACLMessage(id, data);
@@ -73,7 +75,7 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
             ACLMessage aclMessage = messageSerializer.deserialize(data);
             messageProcessor.onMessageReceived(aclMessage);
         } catch (NullPointerException npe) {
-            logger.error("NPE in " + id);
+            logger.error("NPE in " + id, npe);
         } catch (IOException e) {
             e.printStackTrace();
         }

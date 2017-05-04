@@ -10,6 +10,7 @@ import org.I0Itec.zkclient.ZkConnection;
 
 import java.util.Properties;
 
+// TODO: Consider removing topic related methods
 public class TopicManager {
 
     private ZkUtils zkUtils;
@@ -29,6 +30,7 @@ public class TopicManager {
         }
     }
 
+    // TODO: Lets not delete topic
     public void deleteTopic(String name) {
         if (isTopicExists(name)) {
             AdminUtils.deleteTopic(zkUtils, name);

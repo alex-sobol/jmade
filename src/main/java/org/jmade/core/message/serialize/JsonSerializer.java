@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+//todo:make package-private
 public class JsonSerializer implements MessageSerializer {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonSerializer.class);

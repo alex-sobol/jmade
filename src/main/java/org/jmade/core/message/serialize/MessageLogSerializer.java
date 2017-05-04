@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+//todo:serializers become generic
 public class MessageLogSerializer implements MessageSerializer {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageLogSerializer.class);
@@ -34,6 +35,7 @@ public class MessageLogSerializer implements MessageSerializer {
     public MessageLog deserialize(String rawMessage) {
         MessageLog aclMessage = null;
         try {
+            // TODO: Look for a way to get generic class from class signature
             aclMessage = objectMapper.readValue(rawMessage, MessageLog.class);
         } catch (IOException e) {
             logger.error("Error parse raw acl message ", e);

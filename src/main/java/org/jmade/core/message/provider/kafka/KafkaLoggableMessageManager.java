@@ -15,14 +15,18 @@ public class KafkaLoggableMessageManager extends KafkaMessageManager {
         super(id);
     }
 
+    //todo: send object
     @Override
     public void send(String channelName, String data) {
+        // TODO: What if log message sending fails. SENDING vs SENT
         super.send(channelName, data);
+
         MessageLog messageLog = createLog(data, MessageLog.TYPE_SENT);
         ACLMessage aclMessage = new ACLMessage(id, messageLogMessageSerializer.serialize(messageLog));
         producer.send(MESSAGE_LOG_CHANNEL, messageSerializer.serialize(aclMessage));
     }
 
+    // TODO: IMQ or behaviour in case of message processing errors ????
     @Override
     public void onMessageReceived(String channelName, String data) {
         super.onMessageReceived(channelName, data);

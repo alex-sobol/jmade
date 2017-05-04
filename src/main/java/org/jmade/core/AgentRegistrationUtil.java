@@ -15,6 +15,7 @@ public class AgentRegistrationUtil {
         String zookeeperConnect = "localhost:2181";
         int sessionTimeoutMs = 10 * 1000;
         int connectionTimeoutMs = 8 * 1000;
+        // TODO: Add client close
         zkClient = new ZkClient(zookeeperConnect, sessionTimeoutMs, connectionTimeoutMs, ZKStringSerializer$.MODULE$);
     }
 
@@ -32,6 +33,7 @@ public class AgentRegistrationUtil {
         zkClient.delete(AGENTS_ROOT + "/" + agent.getId());
     }
 
+    // TODO: Consider using ephimeral nodes in ZooKeeper
     public void clean(){
         zkClient.deleteRecursive(AGENTS_ROOT);
     }
