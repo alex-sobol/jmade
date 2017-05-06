@@ -30,13 +30,6 @@ public class TopicManager {
         }
     }
 
-    // TODO: Lets not delete topic
-    public void deleteTopic(String name) {
-        if (isTopicExists(name)) {
-            AdminUtils.deleteTopic(zkUtils, name);
-        }
-    }
-
     public boolean isTopicExists(String name) {
         return AdminUtils.topicExists(zkUtils, name);
     }

@@ -82,7 +82,6 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
 
     @Override
     public void stop() {
-        topicManager.deleteTopic(id);
         consumers.forEach(KafkaMessageConsumer::stop);
     }
 
