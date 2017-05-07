@@ -23,7 +23,6 @@ public class MessagePublisher {
     public void send(String channelName, String data) {
         ACLMessage aclMessage = new ACLMessage(id, data);
 
-
         producer.send(channelName, converter.serialize(aclMessage));
     }
 

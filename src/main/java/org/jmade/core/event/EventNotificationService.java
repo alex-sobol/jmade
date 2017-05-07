@@ -1,6 +1,7 @@
 package org.jmade.core.event;
 
 import org.jmade.core.message.provider.kafka.MessagePublisher;
+import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 
 public class EventNotificationService {
@@ -15,6 +16,7 @@ public class EventNotificationService {
     public EventNotificationService(String agentId) {
         this.agentId = agentId;
         this.publisher = new MessagePublisher(agentId);
+        this.converter = new JsonConverter<>(AgentEvent.class);
     }
 
     public void onAgentStarted(){

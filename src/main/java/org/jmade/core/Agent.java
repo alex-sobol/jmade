@@ -1,9 +1,11 @@
 package org.jmade.core;
 
+import org.jmade.core.event.EventNotificationService;
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.provider.kafka.MessagePublisher;
 import org.jmade.core.message.provider.kafka.MessageSubscriber;
+import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.logs.EventSendingLogger;
 
 import java.io.IOException;
@@ -12,7 +14,7 @@ import java.util.UUID;
 
 //todo: move MessageProcessor implementation to kinda "Behaviour" class
 public class Agent implements MessageProcessor {
-    protected EventSendingLogger eventSendingLogger = new EventSendingLogger();
+    private EventNotificationService notificationService;
 
     public String id;
 
@@ -26,16 +28,19 @@ public class Agent implements MessageProcessor {
     // TODO: Shouldn't be public
     public Agent(String id) {
         this.id = id;
+        this.notificationService = new EventNotificationService(id);
     }
 
     public void onStart() {
         this.publisher = new MessagePublisher(id);
         this.subscriber = new MessageSubscriber(id);
         this.subscriber.setMessageProcessor(this);
+        notificationService.onAgentStarted();
     }
 
     public void onStop() {
         subscriber.close();
+        notificationService.onAgentStopped();
     }
 
     public String getId() {
@@ -44,12 +49,12 @@ public class Agent implements MessageProcessor {
 
     @Override
     public void onMessageReceived(ACLMessage message) throws IOException {
+        notificationService.onMessageReceived(new JsonConverter<>(ACLMessage.class).serialize(message));
     }
 
     public void dummySend(String id, List<String> messages) {
         messages.forEach(message -> {
-            publisher.send(id, message);
-            eventSendingLogger.message(message);
+            send(id, message);
         });
     }
 
@@ -58,14 +63,17 @@ public class Agent implements MessageProcessor {
 
     // TODO: Lets move call of this method to behaviour
     protected void reply(ACLMessage message, String content) {
-        publisher.send(message.getSenderId(), content);
-        eventSendingLogger.message(content);
+        send(message.getSenderId(), content);
     }
 
     // TODO: Remove
     protected void send(String channel, String data) {
         publisher.send(channel, data);
+        notificationService.onMessageSent(data);
     }
 
+
+
    /* protected abstract <T extends ACLMessage> Class<T> getDataType();*/
+
 }
