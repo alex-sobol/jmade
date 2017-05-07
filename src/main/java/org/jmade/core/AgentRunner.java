@@ -1,13 +1,12 @@
 package org.jmade.core;
 
-import org.jmade.core.message.Stoppable;
-
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AgentRunner implements Stoppable {
+public class AgentRunner implements Closeable {
 
     private final List<Agent> agents;
     private ExecutorService pool;
@@ -27,7 +26,7 @@ public class AgentRunner implements Stoppable {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         agents.forEach(Agent::onStop);
         agents.forEach(registrationUtil::delete);
     }

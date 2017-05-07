@@ -1,10 +1,9 @@
 package org.jmade.core;
 
 import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
 import org.jmade.core.message.provider.kafka.KafkaMessageManager;
-import org.jmade.core.message.MessageProcessor;
-import org.jmade.example.dto.TradeRequest;
 import org.jmade.logs.EventSendingLogger;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class Agent implements MessageProcessor {
         this(UUID.randomUUID().toString());
     }
 
-   // TODO: Shouldn't be public
+    // TODO: Shouldn't be public
     public Agent(String id) {
         this.id = id;
     }
@@ -34,7 +33,7 @@ public class Agent implements MessageProcessor {
     }
 
     public void onStop() {
-        kafkaMessageManager.stop();
+        kafkaMessageManager.close();
     }
 
     public String getId() {
@@ -62,7 +61,7 @@ public class Agent implements MessageProcessor {
     }
 
     // TODO: Remove
-    protected void send(String channel, String data){
+    protected void send(String channel, String data) {
         kafkaMessageManager.send(channel, data);
     }
 

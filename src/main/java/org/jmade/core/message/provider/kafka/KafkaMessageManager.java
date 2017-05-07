@@ -81,8 +81,8 @@ public class KafkaMessageManager implements MessageManager, MessageReceiver {
     }
 
     @Override
-    public void stop() {
-        consumers.forEach(KafkaMessageConsumer::stop);
+    public void close() {
+        consumers.forEach(KafkaMessageConsumer::close);
     }
 
     //todo:add enable logs.

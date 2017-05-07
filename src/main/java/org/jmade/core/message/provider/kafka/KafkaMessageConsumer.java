@@ -52,7 +52,7 @@ public class KafkaMessageConsumer implements MessageConsumer {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         container.stop();
     }
 

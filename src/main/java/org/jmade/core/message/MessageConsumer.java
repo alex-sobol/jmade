@@ -1,6 +1,7 @@
 package org.jmade.core.message;
 
-// TODO: Consider using some standard interface like Closable
-public interface MessageConsumer extends Stoppable{
+import java.io.Closeable;
+
+public interface MessageConsumer extends Closeable {
     void setMessageReceivedCallback(MessageReceiver callback);
 }
