@@ -30,6 +30,9 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
         this.id = id;
     }
 
+    public MessageSubscriber() {
+    }
+
     @Override
     public void setMessageProcessor(MessageProcessor callback) {
         this.messageProcessor = callback;
