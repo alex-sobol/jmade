@@ -26,9 +26,10 @@ public class Buyer extends Agent {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public Buyer(String topic, Double money, Double bidIncreasePart) {
+    public Buyer(String topic, Double money, Double currentPrice, Double bidIncreasePart) {
         super(topic);
         this.money = money;
+        this.currentPrice = currentPrice;
         this.bidIncreasePart = bidIncreasePart;
     }
 
@@ -46,7 +47,10 @@ public class Buyer extends Agent {
             currentRound = tradeRequest.getRound();
         } else if (tradeRequest.getType().equals(TradeRoundConstants.SOLD)) {
             isPreviousRoundWon = true;
-            sendMoney(tradeRequest.getPrice());
+            money -= tradeRequest.getPrice();
+            roundsWon++;
+            tradeRequest.setType(TradeRoundConstants.PAID);
+            reply(message, objectMapper.writeValueAsString(tradeRequest));
         } else if(tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)){
             System.err.println("****************BUYER*************************");
             System.err.println(getId());
@@ -71,10 +75,5 @@ public class Buyer extends Agent {
                 logger.error(e.getMessage());
             }
         }
-    }
-
-    private void sendMoney(Double bid) {
-        money -= bid;
-        roundsWon++;
     }
 }

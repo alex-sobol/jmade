@@ -24,8 +24,8 @@ public class PlatformApplication {
         AgentRunner agentRunner = new AgentRunner();
         //agentRunner.run(new MessagesLogger(messageLogRepository));
         new MessagesLogger(messageLogRepository).onStart();
-        agentRunner.run(new Buyer("buyer1", 1000.0, 0.1));
-        agentRunner.run(new Buyer("buyer2", 1000.0, 1.0));
+        agentRunner.run(new Buyer("buyer1", 1000.0, 2.0, 0.1));
+        agentRunner.run(new Buyer("buyer2", 1000.0, 1.0, 1.0));
         agentRunner.run(new Seller("seller"));
     }
 }
