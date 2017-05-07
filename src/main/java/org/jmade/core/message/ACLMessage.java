@@ -1,13 +1,11 @@
 package org.jmade.core.message;
 
-import org.jmade.example.dto.TradeRequest;
-
 //todo: consider whether backwards compatibility and versions of the messages are required
 public class ACLMessage {
     //private  String discriminator;
-    private  String senderId;
+    private String senderId;
     //todo: think about map and client util to map
-    private  String content;
+    private String content;
 
     public ACLMessage() {
     }

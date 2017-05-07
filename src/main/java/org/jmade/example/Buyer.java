@@ -36,13 +36,13 @@ public class Buyer extends Agent {
     @Override
     public void onStart() {
         super.onStart();
-        kafkaMessageManager.listenToChannel(BROADCAST_TOPIC);
+        subscriber.listenToChannel(BROADCAST_TOPIC);
     }
 
     @Override
     public void onMessageReceived(ACLMessage message) throws IOException {
         TradeRequest tradeRequest = objectMapper.readValue(message.getContent(), TradeRequest.class);
-        if (tradeRequest.getType().equals(TradeRoundConstants.ROUND_STARTED) && tradeRequest.getRound()>currentRound) {
+        if (tradeRequest.getType().equals(TradeRoundConstants.ROUND_STARTED) && tradeRequest.getRound() > currentRound) {
             sendProposal(message, tradeRequest);
             currentRound = tradeRequest.getRound();
         } else if (tradeRequest.getType().equals(TradeRoundConstants.SOLD)) {
@@ -51,7 +51,7 @@ public class Buyer extends Agent {
             roundsWon++;
             tradeRequest.setType(TradeRoundConstants.PAID);
             reply(message, objectMapper.writeValueAsString(tradeRequest));
-        } else if(tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)){
+        } else if (tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)) {
             System.err.println("****************BUYER*************************");
             System.err.println(getId());
             System.err.println("Money: " + money);
@@ -66,7 +66,7 @@ public class Buyer extends Agent {
         }
 
         isPreviousRoundWon = false;
-        if(money>=currentPrice) {
+        if (money >= currentPrice) {
             tradeRequest.setType(TradeRoundConstants.BID);
             tradeRequest.setPrice(currentPrice);
             try {

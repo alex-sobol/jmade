@@ -2,8 +2,8 @@ package org.jmade.core;
 
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
-import org.jmade.core.message.provider.kafka.KafkaMessageManager;
+import org.jmade.core.message.provider.kafka.MessagePublisher;
+import org.jmade.core.message.provider.kafka.MessageSubscriber;
 import org.jmade.logs.EventSendingLogger;
 
 import java.io.IOException;
@@ -16,7 +16,8 @@ public class Agent implements MessageProcessor {
 
     public String id;
 
-    protected KafkaMessageManager kafkaMessageManager;
+    protected MessagePublisher publisher;
+    protected MessageSubscriber subscriber;
 
     public Agent() {
         this(UUID.randomUUID().toString());
@@ -28,12 +29,13 @@ public class Agent implements MessageProcessor {
     }
 
     public void onStart() {
-        kafkaMessageManager = new KafkaLoggableMessageManager(id);
-        kafkaMessageManager.setMessageProcessor(this);
+        this.publisher = new MessagePublisher(id);
+        this.subscriber = new MessageSubscriber(id);
+        this.subscriber.setMessageProcessor(this);
     }
 
     public void onStop() {
-        kafkaMessageManager.close();
+        subscriber.close();
     }
 
     public String getId() {
@@ -46,7 +48,7 @@ public class Agent implements MessageProcessor {
 
     public void dummySend(String id, List<String> messages) {
         messages.forEach(message -> {
-            kafkaMessageManager.send(id, message);
+            publisher.send(id, message);
             eventSendingLogger.message(message);
         });
     }
@@ -56,13 +58,13 @@ public class Agent implements MessageProcessor {
 
     // TODO: Lets move call of this method to behaviour
     protected void reply(ACLMessage message, String content) {
-        kafkaMessageManager.respond(message, content);
+        publisher.send(message.getSenderId(), content);
         eventSendingLogger.message(content);
     }
 
     // TODO: Remove
     protected void send(String channel, String data) {
-        kafkaMessageManager.send(channel, data);
+        publisher.send(channel, data);
     }
 
    /* protected abstract <T extends ACLMessage> Class<T> getDataType();*/

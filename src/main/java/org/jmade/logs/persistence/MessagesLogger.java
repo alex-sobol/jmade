@@ -2,8 +2,8 @@ package org.jmade.logs.persistence;
 
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.provider.kafka.KafkaLoggableMessageManager;
-import org.jmade.core.message.provider.kafka.KafkaMessageManager;
+import org.jmade.core.message.provider.kafka.LoggableMessagePublisher;
+import org.jmade.core.message.provider.kafka.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.MessageLog;
@@ -18,22 +18,22 @@ public class MessagesLogger implements MessageProcessor {
 
     private MessageConverter<MessageLog> messageLogMessageConverter = new JsonConverter<>(MessageLog.class);
     private MessageLogRepository messageLogRepository;
-    protected KafkaMessageManager kafkaMessageManager;
+    protected MessageSubscriber subscriber;
 
     public MessagesLogger(MessageLogRepository messageLogRepository) {
         this.messageLogRepository = messageLogRepository;
     }
 
     public void onStart() {
-        kafkaMessageManager = new KafkaMessageManager(UUID.randomUUID().toString());
-        kafkaMessageManager.setMessageProcessor(this);
-        kafkaMessageManager.listenToChannel(KafkaLoggableMessageManager.MESSAGE_LOG_CHANNEL, LOGGER_GROUP);
+        subscriber = new MessageSubscriber(UUID.randomUUID().toString());
+        subscriber.setMessageProcessor(this);
+        subscriber.listenToChannel(LoggableMessagePublisher.MESSAGE_LOG_CHANNEL, LOGGER_GROUP);
     }
 
     @Override
     public void onMessageReceived(ACLMessage message) throws IOException {
-        MessageLog messageLog = messageLogMessageConverter.deserialize(message.getContent());
+       /* MessageLog messageLog = messageLogMessageConverter.deserialize(message.getContent());
         messageLog.setId(UUID.randomUUID());
-        messageLogRepository.save(messageLog);
+        messageLogRepository.save(messageLog);*/
     }
 }
