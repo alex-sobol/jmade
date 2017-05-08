@@ -2,7 +2,7 @@ package org.jmade.logs.persistence;
 
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.provider.kafka.MessageSubscriber;
+import org.jmade.core.message.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.MessageLog;

@@ -1,6 +1,6 @@
 package org.jmade.logs;
 
-import org.jmade.core.message.provider.kafka.MessagePublisher;
+import org.jmade.core.message.MessagePublisher;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.Event;

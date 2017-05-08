@@ -1,9 +1,8 @@
-package org.jmade.core.message.provider.kafka;
+package org.jmade.core.message;
 
-import org.jmade.core.message.ACLMessage;
-import org.jmade.core.message.MessageManager;
-import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.MessageReceiver;
+import org.jmade.core.message.*;
+import org.jmade.core.message.provider.kafka.KafkaMessageConsumer;
+import org.jmade.core.message.provider.kafka.TopicManager;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
     protected String id;
     private MessageProcessor messageProcessor;
 
-    private List<KafkaMessageConsumer> consumers = new ArrayList<>();
+    private List<MessageConsumer> consumers = new ArrayList<>();
     private MessageConverter<ACLMessage> messageConverter = new JsonConverter<>(ACLMessage.class);
     private TopicManager topicManager = new TopicManager();
 
@@ -66,7 +65,13 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
 
     @Override
     public void close() {
-        consumers.forEach(KafkaMessageConsumer::close);
+        consumers.forEach((kafkaMessageConsumer) -> {
+            try {
+                kafkaMessageConsumer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override

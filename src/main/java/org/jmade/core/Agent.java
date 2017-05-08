@@ -3,10 +3,9 @@ package org.jmade.core;
 import org.jmade.core.event.EventNotificationService;
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.provider.kafka.MessagePublisher;
-import org.jmade.core.message.provider.kafka.MessageSubscriber;
+import org.jmade.core.message.MessagePublisher;
+import org.jmade.core.message.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
-import org.jmade.logs.EventSendingLogger;
 
 import java.io.IOException;
 import java.util.List;

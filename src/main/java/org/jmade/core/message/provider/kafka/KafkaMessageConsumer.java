@@ -9,6 +9,7 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.listener.config.ContainerProperties;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,11 +52,6 @@ public class KafkaMessageConsumer implements MessageConsumer {
         };
     }
 
-    @Override
-    public void close() {
-        container.stop();
-    }
-
     private Map<String, Object> consumerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -70,5 +66,10 @@ public class KafkaMessageConsumer implements MessageConsumer {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put("auto.offset.reset", "latest");
         return props;
+    }
+
+    @Override
+    public void close() throws IOException {
+        container.stop();
     }
 }

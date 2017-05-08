@@ -1,6 +1,6 @@
 package org.jmade.core.event;
 
-import org.jmade.core.message.provider.kafka.MessagePublisher;
+import org.jmade.core.message.MessagePublisher;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 

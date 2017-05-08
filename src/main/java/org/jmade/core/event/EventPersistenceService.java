@@ -1,9 +1,7 @@
 package org.jmade.core.event;
 
 
-import org.jmade.core.message.provider.kafka.MessageSubscriber;
-
-import java.util.UUID;
+import org.jmade.core.message.MessageSubscriber;
 
 public class EventPersistenceService {
 

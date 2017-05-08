@@ -1,6 +1,6 @@
-package org.jmade.core.message.provider.kafka;
+package org.jmade.core.message;
 
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.provider.kafka.KafkaMessageProducer;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ public class MessagePublisher {
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 
     protected String id;
-    protected KafkaMessageProducer producer;
+    protected MessageProducer producer;
     protected MessageConverter<ACLMessage> converter;
 
     public MessagePublisher(String id) {
