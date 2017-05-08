@@ -2,7 +2,6 @@ package org.jmade.logs.persistence;
 
 import org.jmade.core.message.ACLMessage;
 import org.jmade.core.message.MessageProcessor;
-import org.jmade.core.message.provider.kafka.LoggableMessagePublisher;
 import org.jmade.core.message.provider.kafka.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
@@ -14,6 +13,7 @@ import java.util.UUID;
 
 public class MessagesLogger implements MessageProcessor {
 
+    public static final String MESSAGE_LOG_CHANNEL = "message-log";
     private static final String LOGGER_GROUP = "LOGGERS";
 
     private MessageConverter<MessageLog> messageLogMessageConverter = new JsonConverter<>(MessageLog.class);
@@ -27,7 +27,7 @@ public class MessagesLogger implements MessageProcessor {
     public void onStart() {
         subscriber = new MessageSubscriber(UUID.randomUUID().toString());
         subscriber.setMessageProcessor(this);
-        subscriber.listenToChannel(LoggableMessagePublisher.MESSAGE_LOG_CHANNEL, LOGGER_GROUP);
+        subscriber.listenToChannel(MESSAGE_LOG_CHANNEL, LOGGER_GROUP);
     }
 
     @Override
