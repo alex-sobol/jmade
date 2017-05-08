@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 //public class MessageSubscriber<T extends ACLMessage> {
-public class MessageSubscriber implements MessageManager, MessageReceiver {
+public class MessageSubscriber implements MessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 
@@ -32,13 +32,11 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
     public MessageSubscriber() {
     }
 
-    @Override
     public void setMessageProcessor(MessageProcessor callback) {
         this.messageProcessor = callback;
         listenToChannel(id);
     }
 
-    @Override
     public void listenToChannel(String channelName) {
         listenToChannel(channelName, UUID.randomUUID().toString());
     }
@@ -63,7 +61,6 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
         }
     }
 
-    @Override
     public void close() {
         consumers.forEach((kafkaMessageConsumer) -> {
             try {
@@ -72,15 +69,5 @@ public class MessageSubscriber implements MessageManager, MessageReceiver {
                 e.printStackTrace();
             }
         });
-    }
-
-    @Override
-    public void send(String channelName, String data) {
-
-    }
-
-    @Override
-    public void respond(ACLMessage message, String data) {
-
     }
 }
