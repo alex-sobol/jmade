@@ -96,8 +96,12 @@ public class TestProducerConsumerManualCreation {
         agent1.onStart();
         agent2.onStart();
         Thread.sleep(5000);
-        agent1.dummySend(agent2.getId(), Arrays.asList("foo", "qux"));
-        agent2.dummySend(agent1.getId(), Arrays.asList("bar", "baz"));
+        Arrays.asList("foo", "qux").forEach(val -> {
+            agent1.send(agent2.getId(), val);
+        });
+        Arrays.asList("bar", "baz").forEach(val -> {
+            agent2.send(agent1.getId(), val);
+        });
 
         while (latch.getCount() > 0) {
             latch.countDown();

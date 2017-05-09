@@ -1,6 +1,7 @@
 package org.jmade.example;
 
 import org.jmade.core.Agent;
+import org.jmade.core.action.Action;
 import org.jmade.core.message.ACMessage;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
@@ -8,6 +9,9 @@ import org.jmade.example.dto.TradeRequest;
 import org.jmade.example.dto.TradeRoundConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Buyer extends Agent {
 
@@ -34,40 +38,50 @@ public class Buyer extends Agent {
     @Override
     public void onStart() {
         super.onStart();
-        subscriber.listenToChannel(BROADCAST_TOPIC);
+        BuyAction action = new BuyAction(this, Arrays.asList(this.getId(), BROADCAST_TOPIC));
+        addAction(action);
     }
 
-    @Override
-    public void onMessageReceived(ACMessage message) {
-        TradeRequest tradeRequest = converter.deserialize(message.getContent());
-        if (tradeRequest.getType().equals(TradeRoundConstants.ROUND_STARTED) && tradeRequest.getRound() > currentRound) {
-            sendProposal(message, tradeRequest);
-            currentRound = tradeRequest.getRound();
-        } else if (tradeRequest.getType().equals(TradeRoundConstants.SOLD)) {
-            isPreviousRoundWon = true;
-            money -= tradeRequest.getPrice();
-            roundsWon++;
-            tradeRequest.setType(TradeRoundConstants.PAID);
-            reply(message, converter.serialize(tradeRequest));
-        } else if (tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)) {
-            System.err.println("****************BUYER*************************");
-            System.err.println(getId());
-            System.err.println("Money: " + money);
-            System.err.println("Rounds won: " + roundsWon);
-            onStop();
-        }
-    }
 
-    private void sendProposal(ACMessage message, TradeRequest tradeRequest) {
-        if (!isPreviousRoundWon) {
-            currentPrice = currentPrice + currentPrice * bidIncreasePart;
+
+    private class BuyAction extends Action{
+
+        public BuyAction(Agent agent, List<String> channelName) {
+            super(agent, channelName);
         }
 
-        isPreviousRoundWon = false;
-        if (money >= currentPrice) {
-            tradeRequest.setType(TradeRoundConstants.BID);
-            tradeRequest.setPrice(currentPrice);
-            reply(message, converter.serialize(tradeRequest));
+        @Override
+        public void onMessageReceived(ACMessage message) {
+            TradeRequest tradeRequest = converter.deserialize(message.getContent());
+            if (tradeRequest.getType().equals(TradeRoundConstants.ROUND_STARTED) && tradeRequest.getRound() > currentRound) {
+                sendProposal(message, tradeRequest);
+                currentRound = tradeRequest.getRound();
+            } else if (tradeRequest.getType().equals(TradeRoundConstants.SOLD)) {
+                isPreviousRoundWon = true;
+                money -= tradeRequest.getPrice();
+                roundsWon++;
+                tradeRequest.setType(TradeRoundConstants.PAID);
+                send(message.getSenderId(), converter.serialize(tradeRequest));
+            } else if (tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)) {
+                System.err.println("****************BUYER*************************");
+                System.err.println(getId());
+                System.err.println("Money: " + money);
+                System.err.println("Rounds won: " + roundsWon);
+                onStop();
+            }
+        }
+
+        private void sendProposal(ACMessage message, TradeRequest tradeRequest) {
+            if (!isPreviousRoundWon) {
+                currentPrice = currentPrice + currentPrice * bidIncreasePart;
+            }
+
+            isPreviousRoundWon = false;
+            if (money >= currentPrice) {
+                tradeRequest.setType(TradeRoundConstants.BID);
+                tradeRequest.setPrice(currentPrice);
+                send(message.getSenderId(), converter.serialize(tradeRequest));
+            }
         }
     }
 }

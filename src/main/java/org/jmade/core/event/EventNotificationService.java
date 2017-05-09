@@ -1,5 +1,6 @@
 package org.jmade.core.event;
 
+import org.jmade.core.message.ACMessage;
 import org.jmade.core.message.MessagePublisher;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
@@ -12,11 +13,13 @@ public class EventNotificationService {
 
     private MessagePublisher publisher;
     private MessageConverter<AgentEvent> converter;
+    private MessageConverter<ACMessage> messageConverter;
 
     public EventNotificationService(String agentId) {
         this.agentId = agentId;
         this.publisher = new MessagePublisher(agentId);
         this.converter = new JsonConverter<>(AgentEvent.class);
+        this.messageConverter = new JsonConverter<>(ACMessage.class);
     }
 
     public void onAgentStarted(){
@@ -32,6 +35,11 @@ public class EventNotificationService {
 
     public void onMessageReceived(String message){
         AgentEvent event = new AgentEvent(EventType.MESSAGE_RECEIVED, agentId, message);
+        send(event);
+    };
+
+    public void onMessageReceived(ACMessage message){
+        AgentEvent event = new AgentEvent(EventType.MESSAGE_RECEIVED, agentId, messageConverter.serialize(message));
         send(event);
     };
 

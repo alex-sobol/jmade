@@ -2,6 +2,7 @@ package org.jmade.example;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jmade.core.Agent;
+import org.jmade.core.action.Action;
 import org.jmade.core.message.ACMessage;
 import org.jmade.core.message.serialize.JsonConverter;
 import org.jmade.core.message.serialize.MessageConverter;
@@ -12,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Seller extends Agent {
 
@@ -37,84 +35,98 @@ public class Seller extends Agent {
     @Override
     public void onStart() {
         super.onStart();
-        goTradeRounds();
+        SellAction sellAction = new SellAction(this, Arrays.asList(this.getId()));
+        addAction(sellAction);
+        sellAction.goTradeRounds();
     }
 
-    private void goTradeRounds() {
-        try {
-            Thread.sleep(2000);
-            while (current_round < ROUNDS_MAX) {
-                trade();
-            }
-            TradeRequest tradeRequest = new TradeRequest();
-            tradeRequest.setType(TradeRoundConstants.TRADE_FINISHED);
-            send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
 
-            System.err.println("********************SELLER***************************");
-            System.err.println(getId());
-            System.err.println("Money: " + money);
-            onStop();
 
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
+
+
+    private class SellAction extends Action{
+
+        public SellAction(Agent agent, List<String> channelName) {
+            super(agent, channelName);
         }
-    }
 
-    private void trade() throws InterruptedException {
-        try {
-            sendNotificationRequest();
-            buyRequest = new ArrayList<>();
-            int delayTimes = 0;
-            while (buyRequest.size() < 2 && delayTimes < 10) {
-                Thread.sleep(100);
-                delayTimes++;
+        private void goTradeRounds() {
+            try {
+                Thread.sleep(2000);
+                while (current_round < ROUNDS_MAX) {
+                    trade();
+                }
+                TradeRequest tradeRequest = new TradeRequest();
+                tradeRequest.setType(TradeRoundConstants.TRADE_FINISHED);
+                send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
+
+                System.err.println("********************SELLER***************************");
+                System.err.println(getId());
+                System.err.println("Money: " + money);
+                onStop();
+
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
             }
-            makeDeal();
-            while (!roundFinished) {
-                Thread.sleep(100);
-            }
-            current_round++;
-            System.err.println("Round finished " + current_round);
-        } catch (Exception e) {
-            System.err.println("Round not finished");
-            e.printStackTrace();
         }
-    }
 
-    private void sendNotificationRequest() throws JsonProcessingException {
-        roundFinished = false;
-        TradeRequest tradeRequest = new TradeRequest();
-        tradeRequest.setType(TradeRoundConstants.ROUND_STARTED);
-        tradeRequest.setRound(current_round);
-        send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
-    }
+        private void trade() throws InterruptedException {
+            try {
+                sendNotificationRequest();
+                buyRequest = new ArrayList<>();
+                int delayTimes = 0;
+                while (buyRequest.size() < 2 && delayTimes < 10) {
+                    Thread.sleep(100);
+                    delayTimes++;
+                }
+                makeDeal();
+                while (!roundFinished) {
+                    Thread.sleep(100);
+                }
+                current_round++;
+                System.err.println("Round finished " + current_round);
+            } catch (Exception e) {
+                System.err.println("Round not finished");
+                e.printStackTrace();
+            }
+        }
 
-    private void makeDeal() throws IOException {
-        if (buyRequest.size() > 0) {
-            SortedMap<Double, ACMessage> sortedRequests = new TreeMap<>();
-            buyRequest.forEach(req -> {
-                sortedRequests.put(req.getTradeRequest().getPrice(), req.getACMessage());
-            });
-            Double bestPrice = sortedRequests.lastKey();
-            ACMessage message = sortedRequests.get(bestPrice);
+        @Override
+        public void onMessageReceived(ACMessage message) {
             TradeRequest tradeRequest = converter.deserialize(message.getContent());
-            tradeRequest.setType(TradeRoundConstants.SOLD);
-            tradeRequest.setPrice(bestPrice);
-            reply(message, converter.serialize(tradeRequest));
-        } else {
-            roundFinished = true;
+            if (tradeRequest.getType().equals(TradeRoundConstants.BID)) {
+                buyRequest.add(new ParsedTradeRequest(message, tradeRequest));
+            }
+            if (tradeRequest.getType().equals(TradeRoundConstants.PAID)) {
+                money += tradeRequest.getPrice();
+                roundFinished = true;
+            }
         }
-    }
 
-    @Override
-    public void onMessageReceived(ACMessage message) {
-        TradeRequest tradeRequest = converter.deserialize(message.getContent());
-        if (tradeRequest.getType().equals(TradeRoundConstants.BID)) {
-            buyRequest.add(new ParsedTradeRequest(message, tradeRequest));
+        private void sendNotificationRequest() throws JsonProcessingException {
+            roundFinished = false;
+            TradeRequest tradeRequest = new TradeRequest();
+            tradeRequest.setType(TradeRoundConstants.ROUND_STARTED);
+            tradeRequest.setRound(current_round);
+            send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
         }
-        if (tradeRequest.getType().equals(TradeRoundConstants.PAID)) {
-            money += tradeRequest.getPrice();
-            roundFinished = true;
+
+        private void makeDeal() throws IOException {
+            if (buyRequest.size() > 0) {
+                SortedMap<Double, ACMessage> sortedRequests = new TreeMap<>();
+                buyRequest.forEach(req -> {
+                    sortedRequests.put(req.getTradeRequest().getPrice(), req.getACMessage());
+                });
+                Double bestPrice = sortedRequests.lastKey();
+                ACMessage message = sortedRequests.get(bestPrice);
+                TradeRequest tradeRequest = converter.deserialize(message.getContent());
+                tradeRequest.setType(TradeRoundConstants.SOLD);
+                tradeRequest.setPrice(bestPrice);
+                send(message.getSenderId(), converter.serialize(tradeRequest));
+            } else {
+                roundFinished = true;
+            }
         }
+
     }
 }
