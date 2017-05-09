@@ -30,12 +30,8 @@ public class MessageSubscriber implements ConsumerCallback {
         this.converter = new JsonConverter<>(ACMessage.class);
     }
 
-    public MessageSubscriber() {
-    }
-
     public void setMessageProcessor(MessageProcessor callback) {
         this.messageProcessor = callback;
-        listenToChannel(id);
     }
 
     public void listenToChannel(String channelName) {

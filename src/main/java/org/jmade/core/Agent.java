@@ -57,6 +57,7 @@ public class Agent {
                 notificationService.onMessageReceived(message);
                 action.onMessageReceived(message);
             });
+            subscriber.listenToChannel(channelName);
             subscribers.add(subscriber);
         });
     }

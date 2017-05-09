@@ -5,14 +5,17 @@ import java.util.Date;
 public class AgentEvent {
     private String type;
     private String agentId;
-    private Date eventDate = new Date();
+    private Date createdDate = new Date();
     private String content;
+
+    public AgentEvent() {
+    }
 
     public AgentEvent(String type, String agentId, String content) {
         this.type = type;
         this.agentId = agentId;
         this.content = content;
-        this.eventDate = new Date();
+        this.createdDate = new Date();
     }
 
     public AgentEvent(String type, String agentId) {
@@ -24,8 +27,8 @@ public class AgentEvent {
         return type;
     }
 
-    public Date getEventDate() {
-        return eventDate;
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     public String getContent() {
