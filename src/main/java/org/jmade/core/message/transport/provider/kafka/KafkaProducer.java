@@ -1,7 +1,7 @@
-package org.jmade.core.message.provider.kafka;
+package org.jmade.core.message.transport.provider.kafka;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.jmade.core.message.MessageProducer;
+import org.jmade.core.message.transport.Producer;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
@@ -9,11 +9,11 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KafkaMessageProducer implements MessageProducer {
+public class KafkaProducer implements Producer {
 
     private KafkaTemplate<Integer, String> template;
 
-    public KafkaMessageProducer() {
+    public KafkaProducer() {
         Map<String, Object> senderProps = senderProps();
         ProducerFactory<Integer, String> pf = new DefaultKafkaProducerFactory<>(senderProps);
         template = new KafkaTemplate<>(pf);

@@ -1,16 +1,16 @@
 package org.jmade.core.message;
 
 //todo: consider whether backwards compatibility and versions of the messages are required
-public class ACLMessage {
+public class ACMessage {
     //private  String discriminator;
     private String senderId;
     //todo: think about map and client util to map
     private String content;
 
-    public ACLMessage() {
+    public ACMessage() {
     }
 
-    public ACLMessage(String senderId, String content) {
+    public ACMessage(String senderId, String content) {
         this.senderId = senderId;
         this.content = content;
     }

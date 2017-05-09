@@ -1,19 +1,19 @@
 package org.jmade.example.dto;
 
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
 
 public class ParsedTradeRequest {
 
-    private ACLMessage aclMessage;
+    private ACMessage ACMessage;
     private TradeRequest tradeRequest;
 
-    public ParsedTradeRequest(ACLMessage aclMessage, TradeRequest tradeRequest) {
-        this.aclMessage = aclMessage;
+    public ParsedTradeRequest(ACMessage ACMessage, TradeRequest tradeRequest) {
+        this.ACMessage = ACMessage;
         this.tradeRequest = tradeRequest;
     }
 
-    public ACLMessage getAclMessage() {
-        return aclMessage;
+    public ACMessage getACMessage() {
+        return ACMessage;
     }
 
     public TradeRequest getTradeRequest() {

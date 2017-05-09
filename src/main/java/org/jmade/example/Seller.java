@@ -1,9 +1,10 @@
 package org.jmade.example;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jmade.core.Agent;
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
+import org.jmade.core.message.serialize.JsonConverter;
+import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.example.dto.ParsedTradeRequest;
 import org.jmade.example.dto.TradeRequest;
 import org.jmade.example.dto.TradeRoundConstants;
@@ -25,7 +26,7 @@ public class Seller extends Agent {
     private int current_round = 0;
     private boolean roundFinished = false;
     private List<ParsedTradeRequest> buyRequest;
-    ObjectMapper objectMapper = new ObjectMapper();
+    MessageConverter<TradeRequest> converter = new JsonConverter<>(TradeRequest.class);
 
     private Double money = 0.0;
 
@@ -47,14 +48,14 @@ public class Seller extends Agent {
             }
             TradeRequest tradeRequest = new TradeRequest();
             tradeRequest.setType(TradeRoundConstants.TRADE_FINISHED);
-            send(Buyer.BROADCAST_TOPIC, objectMapper.writeValueAsString(tradeRequest));
+            send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
 
             System.err.println("********************SELLER***************************");
             System.err.println(getId());
             System.err.println("Money: " + money);
             onStop();
 
-        } catch (InterruptedException | JsonProcessingException e) {
+        } catch (InterruptedException e) {
             logger.error(e.getMessage());
         }
     }
@@ -85,29 +86,29 @@ public class Seller extends Agent {
         TradeRequest tradeRequest = new TradeRequest();
         tradeRequest.setType(TradeRoundConstants.ROUND_STARTED);
         tradeRequest.setRound(current_round);
-        send(Buyer.BROADCAST_TOPIC, objectMapper.writeValueAsString(tradeRequest));
+        send(Buyer.BROADCAST_TOPIC, converter.serialize(tradeRequest));
     }
 
     private void makeDeal() throws IOException {
         if (buyRequest.size() > 0) {
-            SortedMap<Double, ACLMessage> sortedRequests = new TreeMap<>();
+            SortedMap<Double, ACMessage> sortedRequests = new TreeMap<>();
             buyRequest.forEach(req -> {
-                sortedRequests.put(req.getTradeRequest().getPrice(), req.getAclMessage());
+                sortedRequests.put(req.getTradeRequest().getPrice(), req.getACMessage());
             });
             Double bestPrice = sortedRequests.lastKey();
-            ACLMessage aclMessage = sortedRequests.get(bestPrice);
-            TradeRequest tradeRequest = objectMapper.readValue(aclMessage.getContent(), TradeRequest.class);
+            ACMessage message = sortedRequests.get(bestPrice);
+            TradeRequest tradeRequest = converter.deserialize(message.getContent());
             tradeRequest.setType(TradeRoundConstants.SOLD);
             tradeRequest.setPrice(bestPrice);
-            reply(aclMessage, objectMapper.writeValueAsString(tradeRequest));
+            reply(message, converter.serialize(tradeRequest));
         } else {
             roundFinished = true;
         }
     }
 
     @Override
-    public void onMessageReceived(ACLMessage message) throws IOException {
-        TradeRequest tradeRequest = objectMapper.readValue(message.getContent(), TradeRequest.class);
+    public void onMessageReceived(ACMessage message) {
+        TradeRequest tradeRequest = converter.deserialize(message.getContent());
         if (tradeRequest.getType().equals(TradeRoundConstants.BID)) {
             buyRequest.add(new ParsedTradeRequest(message, tradeRequest));
         }

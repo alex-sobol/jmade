@@ -1,13 +1,12 @@
 package org.jmade.core;
 
 import org.jmade.core.event.EventNotificationService;
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.MessagePublisher;
 import org.jmade.core.message.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,8 +46,8 @@ public class Agent implements MessageProcessor {
     }
 
     @Override
-    public void onMessageReceived(ACLMessage message) throws IOException {
-        notificationService.onMessageReceived(new JsonConverter<>(ACLMessage.class).serialize(message));
+    public void onMessageReceived(ACMessage message) {
+        notificationService.onMessageReceived(new JsonConverter<>(ACMessage.class).serialize(message));
     }
 
     public void dummySend(String id, List<String> messages) {
@@ -61,7 +60,7 @@ public class Agent implements MessageProcessor {
     private List<Consumer> cons;*/
 
     // TODO: Lets move call of this method to behaviour
-    protected void reply(ACLMessage message, String content) {
+    protected void reply(ACMessage message, String content) {
         send(message.getSenderId(), content);
     }
 

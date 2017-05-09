@@ -1,15 +1,13 @@
 package org.jmade.example;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jmade.core.Agent;
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
+import org.jmade.core.message.serialize.JsonConverter;
+import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.example.dto.TradeRequest;
 import org.jmade.example.dto.TradeRoundConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class Buyer extends Agent {
 
@@ -24,7 +22,7 @@ public class Buyer extends Agent {
     private Boolean isPreviousRoundWon = true;
     private Integer currentRound = -1;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    MessageConverter<TradeRequest> converter = new JsonConverter<>(TradeRequest.class);
 
     public Buyer(String topic, Double money, Double currentPrice, Double bidIncreasePart) {
         super(topic);
@@ -40,8 +38,8 @@ public class Buyer extends Agent {
     }
 
     @Override
-    public void onMessageReceived(ACLMessage message) throws IOException {
-        TradeRequest tradeRequest = objectMapper.readValue(message.getContent(), TradeRequest.class);
+    public void onMessageReceived(ACMessage message) {
+        TradeRequest tradeRequest = converter.deserialize(message.getContent());
         if (tradeRequest.getType().equals(TradeRoundConstants.ROUND_STARTED) && tradeRequest.getRound() > currentRound) {
             sendProposal(message, tradeRequest);
             currentRound = tradeRequest.getRound();
@@ -50,7 +48,7 @@ public class Buyer extends Agent {
             money -= tradeRequest.getPrice();
             roundsWon++;
             tradeRequest.setType(TradeRoundConstants.PAID);
-            reply(message, objectMapper.writeValueAsString(tradeRequest));
+            reply(message, converter.serialize(tradeRequest));
         } else if (tradeRequest.getType().equals(TradeRoundConstants.TRADE_FINISHED)) {
             System.err.println("****************BUYER*************************");
             System.err.println(getId());
@@ -60,7 +58,7 @@ public class Buyer extends Agent {
         }
     }
 
-    private void sendProposal(ACLMessage message, TradeRequest tradeRequest) {
+    private void sendProposal(ACMessage message, TradeRequest tradeRequest) {
         if (!isPreviousRoundWon) {
             currentPrice = currentPrice + currentPrice * bidIncreasePart;
         }
@@ -69,11 +67,7 @@ public class Buyer extends Agent {
         if (money >= currentPrice) {
             tradeRequest.setType(TradeRoundConstants.BID);
             tradeRequest.setPrice(currentPrice);
-            try {
-                reply(message, objectMapper.writeValueAsString(tradeRequest));
-            } catch (JsonProcessingException e) {
-                logger.error(e.getMessage());
-            }
+            reply(message, converter.serialize(tradeRequest));
         }
     }
 }

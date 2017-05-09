@@ -1,8 +1,8 @@
 package org.jmade.example.dto;
 
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
 
-public class TradeRequest  extends ACLMessage{
+public class TradeRequest extends ACMessage {
     // TODO: Add unique transaction id here or on ACLMessage
     private String type;
     private Double price;

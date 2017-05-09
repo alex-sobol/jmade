@@ -1,6 +1,6 @@
-package org.jmade.core.message;
+package org.jmade.core.message.transport;
 
 @FunctionalInterface
-public interface MessageReceiver {
+public interface ConsumerCallback {
     void onMessageReceived(String channelName, String data);
 }

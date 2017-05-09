@@ -1,6 +1,6 @@
 package org.jmade.logs.persistence;
 
-import org.jmade.core.message.ACLMessage;
+import org.jmade.core.message.ACMessage;
 import org.jmade.core.message.MessageProcessor;
 import org.jmade.core.message.MessageSubscriber;
 import org.jmade.core.message.serialize.JsonConverter;
@@ -8,7 +8,6 @@ import org.jmade.core.message.serialize.MessageConverter;
 import org.jmade.logs.persistence.model.MessageLog;
 import org.jmade.logs.persistence.model.MessageLogRepository;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class MessagesLogger implements MessageProcessor {
@@ -31,7 +30,7 @@ public class MessagesLogger implements MessageProcessor {
     }
 
     @Override
-    public void onMessageReceived(ACLMessage message) throws IOException {
+    public void onMessageReceived(ACMessage message) {
        /* MessageLog messageLog = messageLogMessageConverter.deserialize(message.getContent());
         messageLog.setId(UUID.randomUUID());
         messageLogRepository.save(messageLog);*/

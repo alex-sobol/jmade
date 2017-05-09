@@ -1,4 +1,4 @@
-package org.jmade.core.message.provider.kafka;
+package org.jmade.core.message.transport.provider.kafka;
 
 
 import kafka.admin.AdminUtils;

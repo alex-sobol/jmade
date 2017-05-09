@@ -4,7 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.jmade.core.Agent;
-import org.jmade.core.message.provider.kafka.TopicManager;
+import org.jmade.core.message.transport.provider.kafka.TopicManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class TestProducerConsumerManualCreation {
         KafkaTemplate<Integer, String> template2 = createTemplate(topic2);
         template.send(topic1, "foo");
         template2.send(topic2, "bar");
-        template2.send(topic2 , "baz");
+        template2.send(topic2, "baz");
         template.send(topic1, "qux");
         template.flush();
         assertTrue(latch.await(60, TimeUnit.SECONDS));
@@ -99,7 +99,7 @@ public class TestProducerConsumerManualCreation {
         agent1.dummySend(agent2.getId(), Arrays.asList("foo", "qux"));
         agent2.dummySend(agent1.getId(), Arrays.asList("bar", "baz"));
 
-        while (latch.getCount()>0){
+        while (latch.getCount() > 0) {
             latch.countDown();
             Thread.sleep(5000);
         }
@@ -107,7 +107,7 @@ public class TestProducerConsumerManualCreation {
         agent2.onStop();
     }
 
-    private KafkaMessageListenerContainer initContainer(String topic1){
+    private KafkaMessageListenerContainer initContainer(String topic1) {
         KafkaMessageListenerContainer<Integer, String> container = createContainer(topic1);
         container.setupMessageListener(getListener());
         //container.setBeanName("testAuto");
@@ -116,7 +116,7 @@ public class TestProducerConsumerManualCreation {
         return container;
     }
 
-    private MessageListener getListener(){
+    private MessageListener getListener() {
         return new MessageListener<Integer, String>() {
 
             @Override

@@ -1,9 +1,9 @@
-package org.jmade.core.message.provider.kafka;
+package org.jmade.core.message.transport.provider.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.jmade.core.message.MessageConsumer;
-import org.jmade.core.message.MessageReceiver;
+import org.jmade.core.message.transport.Consumer;
+import org.jmade.core.message.transport.ConsumerCallback;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
@@ -13,18 +13,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KafkaMessageConsumer implements MessageConsumer {
+public class KafkaConsumer implements Consumer {
     private String topic;
     private String groupName;
     private KafkaMessageListenerContainer<Integer, String> container;
+    private TopicManager topicManager = new TopicManager();
 
-    public KafkaMessageConsumer(String topic, String groupName) {
+    public KafkaConsumer(String topic, String groupName) {
         this.topic = topic;
         this.groupName = groupName;
+        topicManager.createTopic(topic);
     }
 
     @Override
-    public void setMessageReceivedCallback(MessageReceiver callback) {
+    public void setMessageReceivedCallback(ConsumerCallback callback) {
         if (container != null) {
             container.stop();
         }
@@ -42,7 +44,7 @@ public class KafkaMessageConsumer implements MessageConsumer {
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 
-    private MessageListener getListener(MessageReceiver callback) {
+    private MessageListener getListener(ConsumerCallback callback) {
         return new MessageListener<Integer, String>() {
 
             @Override
