@@ -1,12 +1,12 @@
 package org.jmade;
 
-import org.jmade.logs.persistence.model.Event;
+import org.jmade.core.event.persistence.EventLog;
+import org.jmade.core.event.persistence.EventLogRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.jmade.logs.persistence.model.EventRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,23 +16,21 @@ import java.util.UUID;
 public class CassandraTest {
 
     @Autowired
-    private EventRepository eventRepository;
+    private EventLogRepository repository;
 
     @Test
     public void testCrudRepository() {
-        Event event = new Event();
+        EventLog event = new EventLog();
         event.setId(UUID.randomUUID());
-        event.setActorId("actor1");
-        event.setMessage("lol");
+        event.setAgentId("actor1");
+        event.setContent("lol");
 
-        eventRepository.save(event);
-        List<Event> events = eventRepository.getAll();
+        repository.save(event);
+        List<EventLog> events = repository.getAll();
         assert events.size() == 1;
-        Event saved = events.get(0);
-        assert saved.getActorId().equals("actor1");
+        EventLog saved = events.get(0);
+        assert saved.getAgentId().equals("actor1");
 
-        eventRepository.deleteAll();
-
+        repository.deleteAll();
     }
-
 }
