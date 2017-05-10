@@ -41,10 +41,7 @@ public class Seller extends Agent {
     }
 
 
-
-
-
-    private class SellAction extends Action{
+    private class SellAction extends Action {
 
         public SellAction(Agent agent, List<String> channelName) {
             super(agent, channelName);

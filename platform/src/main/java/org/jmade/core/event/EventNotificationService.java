@@ -22,33 +22,37 @@ public class EventNotificationService {
         this.messageConverter = new JsonConverter<>(ACMessage.class);
     }
 
-    public void onAgentStarted(){
+    public void onAgentStarted() {
         AgentEvent event = new AgentEvent(EventType.AGENT_STARTED, agentId, "");
-       send(event);
+        send(event);
     }
 
 
-    public void onAgentStopped(){
+    public void onAgentStopped() {
         AgentEvent event = new AgentEvent(EventType.AGENT_STOPPED, agentId, "");
         send(event);
     }
 
-    public void onMessageReceived(String message){
+    public void onMessageReceived(String message) {
         AgentEvent event = new AgentEvent(EventType.MESSAGE_RECEIVED, agentId, message);
         send(event);
-    };
+    }
 
-    public void onMessageReceived(ACMessage message){
+    ;
+
+    public void onMessageReceived(ACMessage message) {
         AgentEvent event = new AgentEvent(EventType.MESSAGE_RECEIVED, agentId, messageConverter.serialize(message));
         send(event);
-    };
+    }
 
-    public void onMessageSent(String message){
+    ;
+
+    public void onMessageSent(String message) {
         AgentEvent event = new AgentEvent(EventType.MESSAGE_SENT, agentId, message);
         send(event);
     }
 
-    private void send(AgentEvent event){
+    private void send(AgentEvent event) {
         publisher.send(EVENT_LOG_CHANNEL, converter.serialize(event));
     }
 }

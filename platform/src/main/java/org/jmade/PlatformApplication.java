@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
 public class PlatformApplication {
 
     public static void main(String[] args) throws InterruptedException {
+        TestModule2.doTest();
+        TestModule.doTest();
         ConfigurableApplicationContext context = SpringApplication.run(PlatformApplication.class, args);
         EventLogRepository eventLogRepository = context.getBean(EventLogRepository.class);
         AgentRunner agentRunner = new AgentRunner();
