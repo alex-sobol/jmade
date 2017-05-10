@@ -14,42 +14,41 @@ public class RegistrationUtil implements Closeable {
 
     private static String AGENTS_ROOT = "/agents";
 
-    //TODO: define a way to set individual namespace for every machine
-    private static String CURRENT_MACHINE_ROOT = "/local";
-
     private ZkClient zkClient;
+    private String currentNodeRoot;
 
     public RegistrationUtil() {
         String zookeeperConnect = "localhost:2181";
         int sessionTimeoutMs = 10 * 1000;
         int connectionTimeoutMs = 8 * 1000;
         zkClient = new ZkClient(zookeeperConnect, sessionTimeoutMs, connectionTimeoutMs, ZKStringSerializer$.MODULE$);
+        this.currentNodeRoot = AGENTS_ROOT + "/" + new HostInfo().getIp();
     }
 
     public void registerNode() {
-        if (!zkClient.exists(AGENTS_ROOT + CURRENT_MACHINE_ROOT)) {
-            zkClient.createPersistent(AGENTS_ROOT + CURRENT_MACHINE_ROOT, true);
+        if (!zkClient.exists(currentNodeRoot)) {
+            zkClient.createPersistent(currentNodeRoot, true);
         }
     }
 
     public void deleteNode() {
-        if (zkClient.exists(AGENTS_ROOT + CURRENT_MACHINE_ROOT)) {
-            zkClient.deleteRecursive(AGENTS_ROOT + CURRENT_MACHINE_ROOT);
+        if (zkClient.exists(currentNodeRoot)) {
+            zkClient.deleteRecursive(currentNodeRoot);
         }
     }
 
     public void register(Agent agent) {
-        zkClient.createEphemeral(AGENTS_ROOT + CURRENT_MACHINE_ROOT + "/" + agent.getId());
+        zkClient.createEphemeral(currentNodeRoot + "/" + agent.getId());
     }
 
     public List<String> getAgentsIds() {
-        List<String> ids = zkClient.getChildren(AGENTS_ROOT + CURRENT_MACHINE_ROOT);
+        List<String> ids = zkClient.getChildren(currentNodeRoot);
 
         return ids;
     }
 
     public void delete(Agent agent) {
-        zkClient.delete(AGENTS_ROOT + CURRENT_MACHINE_ROOT + "/" + agent.getId());
+        zkClient.delete(currentNodeRoot + "/" + agent.getId());
     }
 
     @Override
