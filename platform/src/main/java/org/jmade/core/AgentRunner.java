@@ -1,5 +1,7 @@
 package org.jmade.core;
 
+import org.jmade.platform.topology.RegistrationUtil;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,7 @@ public class AgentRunner implements Closeable {
 
     private final List<Agent> agents;
     private ExecutorService pool;
-    private AgentRegistrationUtil registrationUtil = new AgentRegistrationUtil();
+    private RegistrationUtil registrationUtil = new RegistrationUtil();
 
     public AgentRunner() {
         this.agents = new ArrayList<>();

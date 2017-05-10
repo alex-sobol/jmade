@@ -1,13 +1,16 @@
-package org.jmade.core;
+package org.jmade.platform.topology;
 
 import kafka.utils.ZKStringSerializer$;
 import org.I0Itec.zkclient.ZkClient;
+import org.jmade.core.Agent;
+import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
-public class AgentRegistrationUtil implements Closeable {
+@Component
+public class RegistrationUtil implements Closeable {
 
     private static String AGENTS_ROOT = "/agents";
 
@@ -16,12 +19,23 @@ public class AgentRegistrationUtil implements Closeable {
 
     private ZkClient zkClient;
 
-    public AgentRegistrationUtil() {
+    public RegistrationUtil() {
         String zookeeperConnect = "localhost:2181";
         int sessionTimeoutMs = 10 * 1000;
         int connectionTimeoutMs = 8 * 1000;
         zkClient = new ZkClient(zookeeperConnect, sessionTimeoutMs, connectionTimeoutMs, ZKStringSerializer$.MODULE$);
-        initRoot();
+    }
+
+    public void registerNode() {
+        if (!zkClient.exists(AGENTS_ROOT + CURRENT_MACHINE_ROOT)) {
+            zkClient.createPersistent(AGENTS_ROOT + CURRENT_MACHINE_ROOT, true);
+        }
+    }
+
+    public void deleteNode() {
+        if (zkClient.exists(AGENTS_ROOT + CURRENT_MACHINE_ROOT)) {
+            zkClient.deleteRecursive(AGENTS_ROOT + CURRENT_MACHINE_ROOT);
+        }
     }
 
     public void register(Agent agent) {
@@ -41,11 +55,5 @@ public class AgentRegistrationUtil implements Closeable {
     @Override
     public void close() throws IOException {
         zkClient.close();
-    }
-
-    private void initRoot() {
-        if (!zkClient.exists(AGENTS_ROOT + CURRENT_MACHINE_ROOT)) {
-            zkClient.createPersistent(AGENTS_ROOT + CURRENT_MACHINE_ROOT, true);
-        }
     }
 }
