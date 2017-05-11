@@ -25,7 +25,6 @@ public class PlatformApplication {
         EventLogRepository eventLogRepository = context.getBean(EventLogRepository.class);
         eventLogRepository.deleteAll();
         AgentRunner agentRunner = new AgentRunner();
-        //agentRunner.run(new MessagesLogger(messageLogRepository));
         new EventLogger(eventLogRepository);
         agentRunner.run(new Buyer("buyer1", 1000.0, 2.0, 0.1));
         agentRunner.run(new Buyer("buyer2", 1000.0, 1.0, 1.0));
