@@ -1,0 +1,13 @@
+package org.jmade.web.controller.page;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class TopologyController {
+
+    @RequestMapping("/topology")
+    public String home() {
+        return "topology";
+    }
+}

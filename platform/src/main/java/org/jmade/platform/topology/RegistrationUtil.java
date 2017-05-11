@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class RegistrationUtil implements Closeable {
@@ -39,6 +41,17 @@ public class RegistrationUtil implements Closeable {
 
     public void register(Agent agent) {
         zkClient.createEphemeral(currentNodeRoot + "/" + agent.getId());
+    }
+
+    public Map<String, List> getTopology() {
+        Map<String, List> topology = new HashMap<>();
+        List<String> nodes = zkClient.getChildren(AGENTS_ROOT);
+        nodes.forEach(node -> {
+            List<String> agents = zkClient.getChildren(AGENTS_ROOT + "/" + node);
+            topology.put(node, agents);
+        });
+
+        return topology;
     }
 
     public List<String> getAgentsIds() {
