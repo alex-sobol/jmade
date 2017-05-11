@@ -52,7 +52,7 @@ public class Agent {
 
     public void addAction(Action action) {
         action.getChannelNames().forEach(channelName -> {
-            MessageSubscriber subscriber = new MessageSubscriber(channelName);
+            MessageSubscriber subscriber = new MessageSubscriber(id);
             subscriber.setMessageProcessor((message) -> {
                 notificationService.onMessageReceived(message);
                 action.onMessageReceived(message);
