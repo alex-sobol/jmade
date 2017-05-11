@@ -8,6 +8,11 @@
 <body>
 <h2 style="text-align: center; width: 100%; padding: 20px">Agent info: ${agentId}</h2>
 
+<div>
+    <div id="send-result"></div>
+    <textarea id="message" style="resize: none; width: 100%; height: 100px;"></textarea>
+    <button id="send" value="send">Send</button>
+</div>
 <div id="logs" style="width: 100%; height: 50%"></div>
 <script>
     var agentId = "${agentId}";
@@ -31,9 +36,30 @@
                             logsContainer.append("<p>" + JSON.stringify(logItem) + "</p>");
                         });
                         timeout = setTimeout(updateLogs, 2000);
-                    });
+                    }
+            );
         };
         updateLogs();
+
+        var messageContainer = $("#message");
+        var statusContainer = $("#send-result");
+        $("#send").on("click", function () {
+            $.post(
+                    "/api/agent/send",
+                    {
+                        agentId: agentId,
+                        message: messageContainer.val()
+                    },
+                    function (data, status) {
+                    }
+            ).done(function () {
+                        statusContainer.html("<span style='color: green'>Success!</span>");
+                    }
+            ).fail(function () {
+                        statusContainer.html("<span style='color: red'>Failed!</span>");
+                    }
+            );
+        })
     });
 </script>
 </body>
