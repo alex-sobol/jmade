@@ -16,7 +16,7 @@ import java.util.UUID;
 //public class MessageSubscriber<T extends ACLMessage> {
 public class MessageSubscriber implements ConsumerCallback {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageSubscriber.class);
 
     protected String id;
     private List<Consumer> consumers;
