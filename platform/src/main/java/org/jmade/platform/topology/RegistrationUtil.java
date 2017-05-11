@@ -64,6 +64,12 @@ public class RegistrationUtil implements Closeable {
         zkClient.delete(currentNodeRoot + "/" + agent.getId());
     }
 
+    public void clean() {
+        if (zkClient.exists(AGENTS_ROOT)) {
+            zkClient.deleteRecursive(AGENTS_ROOT);
+        }
+    }
+
     @Override
     public void close() throws IOException {
         zkClient.close();
