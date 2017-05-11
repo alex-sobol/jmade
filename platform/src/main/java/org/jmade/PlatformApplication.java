@@ -23,6 +23,7 @@ public class PlatformApplication {
         TestModule.doTest();
         ConfigurableApplicationContext context = SpringApplication.run(PlatformApplication.class, args);
         EventLogRepository eventLogRepository = context.getBean(EventLogRepository.class);
+        eventLogRepository.deleteAll();
         AgentRunner agentRunner = new AgentRunner();
         //agentRunner.run(new MessagesLogger(messageLogRepository));
         new EventLogger(eventLogRepository);

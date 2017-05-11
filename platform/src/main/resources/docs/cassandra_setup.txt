@@ -4,4 +4,5 @@ CREATE KEYSPACE IF NOT EXISTS sample WITH replication = {'class':'SimpleStrategy
 In properties:
 spring.data.cassandra.keyspace-name=sample
 
-CREATE TABLE IF NOT EXISTS  sample.event_log (id UUID,agentId varchar,type varchar,createdDate timestamp,content varchar,primary key((id)));
+CREATE TABLE IF NOT EXISTS  sample.event_log (id UUID,agentId varchar,type varchar,createdDate timestamp,content varchar,
+primary key(agentId, createdDate)) with clustering order by (createdDate asc);
