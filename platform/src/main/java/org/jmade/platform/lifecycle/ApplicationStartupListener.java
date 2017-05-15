@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationStartupListener implements ApplicationListener<ApplicationReadyEvent> {
 
-    @Autowired
-    RegistrationUtil registrationUtil;
     @Value("${jmade.debug.mode}")
     Boolean isDebugMode;
+
+    @Autowired
+    RegistrationUtil registrationUtil;
 
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {

@@ -1,6 +1,5 @@
 package org.jmade.platform.topology;
 
-import kafka.utils.ZKStringSerializer$;
 import org.I0Itec.zkclient.ZkClient;
 import org.jmade.core.Agent;
 import org.springframework.stereotype.Component;
@@ -19,11 +18,8 @@ public class RegistrationUtil implements Closeable {
     private ZkClient zkClient;
     private String currentNodeRoot;
 
-    public RegistrationUtil() {
-        String zookeeperConnect = "localhost:2181";
-        int sessionTimeoutMs = 10 * 1000;
-        int connectionTimeoutMs = 8 * 1000;
-        zkClient = new ZkClient(zookeeperConnect, sessionTimeoutMs, connectionTimeoutMs, ZKStringSerializer$.MODULE$);
+    public RegistrationUtil(ZkClient zkClient) {
+        this.zkClient = zkClient;
         this.currentNodeRoot = AGENTS_ROOT + "/" + new HostInfo().getIp();
     }
 

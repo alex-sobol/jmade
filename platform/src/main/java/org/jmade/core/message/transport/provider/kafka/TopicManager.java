@@ -15,6 +15,7 @@ public class TopicManager {
 
     private ZkUtils zkUtils;
 
+    //TODO: consider how to deal with configurable zkClient;
     public TopicManager() {
         String zookeeperConnect = "localhost:2181";
         int sessionTimeoutMs = 10 * 1000;

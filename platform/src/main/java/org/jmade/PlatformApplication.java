@@ -24,8 +24,8 @@ public class PlatformApplication {
         ConfigurableApplicationContext context = SpringApplication.run(PlatformApplication.class, args);
         EventLogRepository eventLogRepository = context.getBean(EventLogRepository.class);
         eventLogRepository.deleteAll();
-        AgentRunner agentRunner = new AgentRunner();
         new EventLogger(eventLogRepository);
+        AgentRunner agentRunner = context.getBean("agentRunner", AgentRunner.class);
         agentRunner.run(new Buyer("buyer1", 1000.0, 2.0, 0.1));
         agentRunner.run(new Buyer("buyer2", 1000.0, 1.0, 1.0));
         agentRunner.run(new Seller("seller"));

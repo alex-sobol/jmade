@@ -15,11 +15,12 @@ public class AgentRunner implements Closeable {
 
     private final List<Agent> agents;
     private ExecutorService pool;
-    private RegistrationUtil registrationUtil = new RegistrationUtil();
+    private RegistrationUtil registrationUtil;
 
-    public AgentRunner() {
+    public AgentRunner(RegistrationUtil registrationUtil) {
         this.agents = new ArrayList<>();
         this.pool = Executors.newFixedThreadPool(10);
+        this.registrationUtil = registrationUtil;
     }
 
     public void run(Agent agent) {
