@@ -2,6 +2,7 @@ package org.jmade.platform.lifecycle;
 
 import org.jmade.platform.topology.RegistrationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -11,9 +12,14 @@ public class ApplicationStartupListener implements ApplicationListener<Applicati
 
     @Autowired
     RegistrationUtil registrationUtil;
+    @Value("${jmade.debug.mode}")
+    Boolean isDebugMode;
 
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
+        if (isDebugMode) {
+            registrationUtil.clean();
+        }
         registrationUtil.registerNode();
     }
 
