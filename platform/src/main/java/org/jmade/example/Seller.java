@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 public class Seller extends Agent {
 
@@ -22,7 +23,7 @@ public class Seller extends Agent {
     private static final int ROUNDS_MAX = 64;
 
     private int current_round = 0;
-    private boolean roundFinished = false;
+    private volatile boolean roundFinished = false;
     private List<ParsedTradeRequest> buyRequest;
     MessageConverter<TradeRequest> converter = new JsonConverter<>(TradeRequest.class);
 
@@ -37,9 +38,7 @@ public class Seller extends Agent {
         super.onStart();
         SellAction sellAction = new SellAction(this, Arrays.asList(this.getId()));
         addAction(sellAction);
-        sellAction.goTradeRounds();
     }
-
 
     private class SellAction extends Action {
 
@@ -48,8 +47,7 @@ public class Seller extends Agent {
         }
 
         private void goTradeRounds() {
-            try {
-                Thread.sleep(2000);
+            Executors.newFixedThreadPool(1).execute(() -> {
                 while (current_round < ROUNDS_MAX) {
                     trade();
                 }
@@ -61,13 +59,10 @@ public class Seller extends Agent {
                 System.err.println(getId());
                 System.err.println("Money: " + money);
                 onStop();
-
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-            }
+            });
         }
 
-        private void trade() throws InterruptedException {
+        private void trade() {
             try {
                 sendNotificationRequest();
                 buyRequest = new ArrayList<>();
@@ -91,6 +86,9 @@ public class Seller extends Agent {
         @Override
         public void onMessageReceived(ACMessage message) {
             TradeRequest tradeRequest = converter.deserialize(message.getContent());
+            if (tradeRequest.getType().equals(TradeRoundConstants.TRADE_START)) {
+                goTradeRounds();
+            }
             if (tradeRequest.getType().equals(TradeRoundConstants.BID)) {
                 buyRequest.add(new ParsedTradeRequest(message, tradeRequest));
             }

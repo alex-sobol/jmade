@@ -1,10 +1,10 @@
 package org.jmade;
 
-import org.jmade.core.AgentRunner;
 import org.jmade.core.event.persistence.EventLogRepository;
 import org.jmade.core.event.persistence.EventLogger;
 import org.jmade.example.Buyer;
 import org.jmade.example.Seller;
+import org.jmade.platform.run.AgentRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,5 +29,7 @@ public class PlatformApplication {
         agentRunner.run(new Buyer("buyer1", 1000.0, 2.0, 0.1));
         agentRunner.run(new Buyer("buyer2", 1000.0, 1.0, 1.0));
         agentRunner.run(new Seller("seller"));
+        /*agentRunner.run(new PingAgent("ping"));
+        agentRunner.run(new PongAgent("pong"));*/
     }
 }
