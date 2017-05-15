@@ -37,15 +37,16 @@ public class AgentController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String uploadAgent(@RequestParam(value = "file", required = true) MultipartFile file) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+        System.out.println(System.getProperty("java.class.path"));
         File root = new File("C:/Temp/");
-        File uploadedFile = new File(root, "org/jmade/example/ping/" + file.getOriginalFilename());
+        File uploadedFile = new File(root, file.getOriginalFilename());
         uploadedFile.getParentFile().mkdirs();
         file.transferTo(uploadedFile);
 
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null, "-classpath / -d classes " , uploadedFile.getPath());
+        /*JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null, "-classpath ../ -d classes " , uploadedFile.getPath());*/
 
-        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{root.toURI().toURL()}, this.getClass().getClassLoader());
+        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{uploadedFile.toURI().toURL()}, this.getClass().getClassLoader());
         Class<?> clazz = classLoader.loadClass("org.jmade.example.ping.PingAgent");
         Class<?> cls = Class.forName("org.jmade.example.ping.PingAgent", true, classLoader);
         Object instance =  cls.newInstance();

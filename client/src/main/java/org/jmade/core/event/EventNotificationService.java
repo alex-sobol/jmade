@@ -38,14 +38,10 @@ public class EventNotificationService {
         send(event);
     }
 
-    ;
-
     public void onMessageReceived(ACMessage message) {
         AgentEvent event = new AgentEvent(EventType.MESSAGE_RECEIVED, agentId, messageConverter.serialize(message));
         send(event);
     }
-
-    ;
 
     public void onMessageSent(String message) {
         AgentEvent event = new AgentEvent(EventType.MESSAGE_SENT, agentId, message);
