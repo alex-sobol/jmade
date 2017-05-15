@@ -2,6 +2,7 @@ package org.jmade.platform.run;
 
 import org.jmade.core.Agent;
 import org.jmade.platform.topology.RegistrationUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
@@ -17,9 +18,9 @@ public class AgentRunner implements Closeable {
     private ExecutorService pool;
     private RegistrationUtil registrationUtil;
 
-    public AgentRunner(RegistrationUtil registrationUtil) {
+    public AgentRunner(RegistrationUtil registrationUtil, Integer threadsNumber) {
         this.agents = new ArrayList<>();
-        this.pool = Executors.newFixedThreadPool(10);
+        this.pool = Executors.newFixedThreadPool(threadsNumber);
         this.registrationUtil = registrationUtil;
     }
 
