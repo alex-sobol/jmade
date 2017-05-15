@@ -1,6 +1,8 @@
-package org.jmade.core;
+package org.jmade.platform.run;
 
+import org.jmade.core.Agent;
 import org.jmade.platform.topology.RegistrationUtil;
+import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Component
 public class AgentRunner implements Closeable {
 
     private final List<Agent> agents;

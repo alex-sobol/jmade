@@ -9,8 +9,14 @@
 
 <h3>Menu</h3>
 
-<p>
-    <a href="/topology">Agents topology</a>
-</p>
+<ul>
+    <li>
+        <a href="/topology">Agents topology</a>
+    </li>
+    <li>
+        <a href="/agent/upload">Agent upload</a>
+    </li>
+</ul>
+
 </body>
 </html>

@@ -29,7 +29,5 @@ public class PlatformApplication {
         agentRunner.run(new Buyer("buyer1", 1000.0, 2.0, 0.1));
         agentRunner.run(new Buyer("buyer2", 1000.0, 1.0, 1.0));
         agentRunner.run(new Seller("seller"));
-        /*agentRunner.run(new PingAgent("ping"));
-        agentRunner.run(new PongAgent("pong"));*/
     }
 }
